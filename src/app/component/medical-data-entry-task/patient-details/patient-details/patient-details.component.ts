@@ -1,0 +1,65 @@
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DataService } from 'src/app/service/daata.service';
+
+@Component({
+  selector: 'app-patient-details',
+  templateUrl: './patient-details.component.html',
+  styleUrls: ['./patient-details.component.css']
+})
+export class PatientDetailsComponent implements OnChanges {
+  @Input() data: any;
+  @Input() randomNumber!: number;
+  patientForm!: FormGroup;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private dataService: DataService
+  ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data'] && this.data) {
+      console.log(this.randomNumber)
+      this.initForm();
+      this.assignFormValue(this.data);
+    }
+  }
+
+
+  initForm() {
+    // Create an empty form
+    this.patientForm = this.formBuilder.group({
+      patientName: ['', Validators.required],
+      dob: ['', Validators.required],
+      currentAge: ['', Validators.required],
+      sex: ['', Validators.required],
+      patientId: ['', Validators.required],
+      hr: ['', Validators.required],
+      qtIntervals: ['', Validators.required],
+    });
+
+    // After initializing the form, you can call assignFormValue if needed
+    this.assignFormValue(this.data);
+  }
+
+  assignFormValue(data: string | any[]) {
+    if (Array.isArray(data) && data.length > 0) {
+      const firstPatient = data[this.randomNumber];
+  
+      // Patch the values if data is available
+      this.patientForm.patchValue({
+        patientName: firstPatient.patientName,
+        dob: firstPatient.dob,
+        currentAge: firstPatient.currentAge,
+        sex: firstPatient.sex,
+        patientId: firstPatient.patientId,
+        hr: firstPatient.hr,
+        qtIntervals: firstPatient.qtIntervals,
+      });
+  
+      // Log the data after it's patched into the form
+      // console.log(this.patientForm.value);
+    }
+  }
+  
+}

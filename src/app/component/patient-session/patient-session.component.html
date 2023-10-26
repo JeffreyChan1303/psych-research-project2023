@@ -1,0 +1,11 @@
+<div class="container">
+    <div class="form-wrapper">
+      <form [formGroup]="participantForm" (ngSubmit)="startSession()">
+        <label for="participantNumber">Please Enter the Participant Number Below and Then Click Start Session</label>
+        <input type="text" id="participantNumber" formControlName="participantNumber">
+        <br>
+        <button type="submit">Start Session</button>
+      </form>
+    </div>
+  </div>
+  

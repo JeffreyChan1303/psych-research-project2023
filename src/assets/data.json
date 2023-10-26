@@ -1,0 +1,236 @@
+[
+    {
+      "patientName": "John Doe",
+      "dob": "1990-01-01",
+      "currentAge": 30,
+      "sex": "Male",
+      "patientId": "P-123456",
+      "hr": 150,
+      "qtIntervals": 400,
+      "femaleRange":"110 to 162",
+      "maleRange":"110 to 139"
+    },
+    {
+      "patientName": "Joe khim",
+      "dob": "1985-05-15",
+      "currentAge": 36,
+      "sex": "Female",
+      "patientId": "P789012",
+      "hr": 125,
+      "qtIntervals": 420,
+      "femaleRange":"99 to 154",
+      "maleRange":"78 to 167"
+    },
+    {
+      "patientName": "Bob Smith",
+      "dob": "1978-09-20",
+      "currentAge": 43,
+      "sex": "Male",
+      "patientId": "P345678",
+      "hr": 129,
+      "qtIntervals": 390,
+      "femaleRange":"86 to 178",
+      "maleRange":"86 to 154"
+    },
+    {
+          "patientName": "John Doe",
+          "dob": "1990-01-01",
+          "currentAge": 30,
+          "sex": "Male",
+          "patientId": "PSX-601",
+          "hr": 145,
+          "qtIntervals": 0.36,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Jane Doe",
+          "dob": "1995-05-15",
+          "currentAge": 27,
+          "sex": "Female",
+          "patientId": "PSX-602",
+          "hr": 130,
+          "qtIntervals": 0.34,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Bob Smith",
+          "dob": "1985-08-22",
+          "currentAge": 37,
+          "sex": "Male",
+          "patientId": "PSX-603",
+          "hr": 142,
+          "qtIntervals": 0.35,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    }, 
+    
+    {
+          "patientName": "Alice Johnson",
+          "dob": "1982-03-10",
+          "currentAge": 41,
+          "sex": "Female",
+          "patientId": "PSX-604",
+          "hr": 125,
+          "qtIntervals": 0.33,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Mark Davis",
+          "dob": "1998-11-28",
+          "currentAge": 24,
+          "sex": "Male",
+          "patientId": "PSX-605",
+          "hr": 160,
+          "qtIntervals": 0.37,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Eva Martinez",
+          "dob": "1975-09-05",
+          "currentAge": 48,
+          "sex": "Female",
+          "patientId": "PSX-606",
+          "hr": 135,
+          "qtIntervals": 0.34,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "David White",
+          "dob": "1987-07-18",
+          "currentAge": 35,
+          "sex": "Male",
+          "patientId": "PSX-607",
+          "hr": 125,
+          "qtIntervals": 0.36,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Sophia Lee",
+          "dob": "1993-04-03",
+          "currentAge": 29,
+          "sex": "Female",
+          "patientId": "PSX-608",
+          "hr": 140,
+          "qtIntervals": 0.35,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    }, 
+    {
+          "patientName": "Michael Brown",
+          "dob": "1980-06-12",
+          "currentAge": 43,
+          "sex": "Male",
+          "patientId": "PSX-609",
+          "hr": 132,
+          "qtIntervals": 0.35,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Olivia Taylor",
+          "dob": "1996-09-20",
+          "currentAge": 27,
+          "sex": "Female",
+          "patientId": "PSX-610",
+          "hr": 148,
+          "qtIntervals": 0.36,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Ryan Adams",
+          "dob": "1988-12-08",
+          "currentAge": 34,
+          "sex": "Male",
+          "patientId": "PSX-611",
+          "hr": 142,
+          "qtIntervals": 0.34,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Isabella Rodriguez",
+          "dob": "1992-02-15",
+          "currentAge": 30,
+          "sex": "Female",
+          "patientId": "PSX-612",
+          "hr": 128,
+          "qtIntervals": 0.37,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Christopher Evans",
+          "dob": "1974-04-25",
+          "currentAge": 49,
+          "sex": "Male",
+          "patientId": "PSX-613",
+          "hr": 148,
+          "qtIntervals": 0.36,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    
+    {
+          "patientName": "Emma Foster",
+          "dob": "1991-08-30",
+          "currentAge": 32,
+          "sex": "Female",
+          "patientId": "PSX-614",
+          "hr": 138,
+          "qtIntervals": 0.35,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Nicholas Turner",
+          "dob": "1983-11-17",
+          "currentAge": 39,
+          "sex": "Male",
+          "patientId": "PSX-615",
+          "hr": 130,
+          "qtIntervals": 0.36,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Grace Murphy",
+          "dob": "1997-05-02",
+          "currentAge": 26,
+          "sex": "Female",
+          "patientId": "PSX-616",
+          "hr": 155,
+          "qtIntervals": 0.34,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Daniel Harris",
+          "dob": "1986-04-12",
+          "currentAge": 36,
+          "sex": "Male",
+          "patientId": "PSX-617",
+          "hr": 125,
+          "qtIntervals": 0.37,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    },
+    {
+          "patientName": "Ava Thompson",
+          "dob": "1994-01-08",
+          "currentAge": 29,
+          "sex": "Female",
+          "patientId": "PSX-618",
+          "hr": 142,
+          "qtIntervals": 0.35,
+          "femaleRange": "110 to 162",
+          "maleRange": "110 to 139"
+    }
+]
+  

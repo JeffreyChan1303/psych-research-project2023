@@ -1,0 +1,12 @@
+<!-- patient-male-female.component.html -->
+<form [formGroup]="patientForm" class="patient-male-female-container">
+    <div class="female-container">
+        <label for="female-name">Female</label>
+        <input type="text" id="female-name" formControlName="femaleName">
+    </div>
+
+    <div class="male-container">
+        <label for="male-name">Male</label>
+        <input type="text" id="male-name" formControlName="maleName">
+    </div>
+</form>

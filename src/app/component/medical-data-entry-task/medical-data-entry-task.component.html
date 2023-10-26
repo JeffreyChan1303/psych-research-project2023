@@ -1,0 +1,15 @@
+    <div class="medical-main-container">
+        <header>Medical Data Entry Task</header>
+        <div class="medical-sub-container">
+            <div class="patient-details" *ngIf="data">
+                <app-patient-details [data]="data" [randomNumber]="randomNumber"></app-patient-details>
+            </div>
+            <div class="right-interpretation" *ngIf="data">
+                <app-patient-interpretation 
+                [data]="data" 
+                [randomNumber]="randomNumber"
+                (formSubmitted)="handleFormSubmission()"
+                ></app-patient-interpretation>
+            </div>
+        </div>
+    </div>

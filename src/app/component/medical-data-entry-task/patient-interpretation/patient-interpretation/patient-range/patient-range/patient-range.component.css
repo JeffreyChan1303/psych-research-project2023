@@ -1,0 +1,127 @@
+/* Add or update these styles in your existing stylesheet */
+
+.patient-range-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.patient-range-left-container {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input {
+    width: calc(100% - 16px);
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column; /* Display radio buttons in a column */
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+}
+
+.radio-group input {
+    width: 35%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    margin-top: 15px;
+}
+
+.patient-range-right-container {
+    flex: 1;
+    text-align: left;
+}
+
+.card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-content {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.card-total-record {
+    font-weight: bold;
+    color: #333;
+}
+
+.card-correct-record {
+    font-style: italic;
+    color: #007bff; /* Change the color as needed */
+}
+
+.card-timer {
+    font-style: italic;
+    color: #ff006a; /* Change the color as needed */
+}
+
+button {
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+/* Add or update these styles in your existing stylesheet */
+
+.input-with-button {
+    display: flex;
+    align-items: center;
+}
+
+.input-with-button input {
+    flex: 8; /* Adjusted to take up 80% of the width */
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.trigger-button {
+    flex: 2; /* Adjusted to take up 20% of the width */
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.trigger-button:hover {
+    background-color: #45a049;
+}
