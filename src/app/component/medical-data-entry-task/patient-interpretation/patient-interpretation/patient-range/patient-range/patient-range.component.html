@@ -28,7 +28,7 @@
                         <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button>
                     </div>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="break-count">Break After X Records</label>
                     <div class="input-with-button">
@@ -36,7 +36,7 @@
                         <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button>
                     </div>
                 </div>
-    
+
                 <div class="form-group">
                     <label for="break-duration">Break Duration (seconds)</label>
                     <div class="input-with-button">
@@ -46,9 +46,9 @@
                 </div>
             </ng-container>
 
-     
 
-            <button [disabled]="isSubmitButtonActive" type="submit">Submit</button>
+
+          <button [disabled]="isSubmitButtonActive" type="submit" [ngClass]="{'disabled-button': isSubmitButtonActive}">Submit</button>
         </form>
     </div>
 

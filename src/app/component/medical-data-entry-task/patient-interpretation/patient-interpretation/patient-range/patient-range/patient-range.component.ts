@@ -98,28 +98,31 @@ export class PatientRangeComponent implements OnInit {
     if (this.breakRemaining > 0) {
       // If there is, decrease breakRemaining
       this.breakRemaining--;
-      this.isSubmitButtonActive = false;
+      // this.isSubmitButtonActive = false;
     } else {
       // Otherwise, continue with the task duration timer
       const taskDurationInSeconds = this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDuration * 60;
-  
+
       // Store the start time to consider the existing countdown time
       const startTime = Date.now() - (this.patientForm.value.taskDuration * 60 - this.timeRemaining) * 1000;
-  
+
       // Store the interval ID
       this.timerInterval = setInterval(() => {
         const currentTime = Date.now();
         const elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
-  
+
         if (this.breakRemaining > 0) {
           // If a break is needed, set breakRemaining to the break duration
           this.breakRemaining--;
         } else if (this.timeRemaining > 0) {
           // Continue counting down the task duration
           this.timeRemaining = taskDurationInSeconds - elapsedTimeInSeconds;
+          if (this.breakRemaining === 0) {
+            this.isSubmitButtonActive = false
+          }
         } else {
           clearInterval(this.timerInterval);
-          
+
           // If a break is needed, set breakRemaining to the break duration
           this.breakRemaining = this.patientForm.value.breakDuration;
           this.startTimer(); // Start the new timer (for the break)
@@ -127,10 +130,10 @@ export class PatientRangeComponent implements OnInit {
       }, 1000); // Update every second
     }
   }
-  
-  
-  
-  
+
+
+
+
 
   showBreakPopup() {
     const breakDurationInSeconds = this.patientForm.value.breakDuration;
@@ -142,7 +145,7 @@ export class PatientRangeComponent implements OnInit {
       this.breakRemaining = breakDurationInSeconds;
       this.isSubmitButtonActive = true;
       // Continue with the task duration timer
-      this.startTimer(); 
+      this.startTimer();
     } else {
       // Implement logic for what to do when the user declines a break
     }
@@ -162,25 +165,25 @@ export class PatientRangeComponent implements OnInit {
     }
   }
 
-  
+
   downloadRecords() {
     console.log(this.timeRemaining, "time Remaining")
     if (this.timeRemaining  = 0) {
       // Create CSV data
       const csvData: any[] = [];
       csvData.push(['Field', 'Value']); // Header
-  
+
       // Add user inputs
       csvData.push(['Patient ID', this.patientForm.value.patientId]);
       csvData.push(['Interpretation', this.patientForm.value.interpretation]);
       csvData.push(['', '']); // Empty row for separation
-  
+
       // Add summary
       csvData.push(['Total Record', this.totalRecord]);
       csvData.push(['Correct Record', this.correctRecord]);
       csvData.push(['Time Remaining', this.timeRemaining]);
       csvData.push(['', '']); // Empty row for separation
-  
+
       // Add current patient details if available
       const currentData = this.data[this.randomNumber]?.currentPatientDetails;
       if (currentData) {
@@ -198,30 +201,30 @@ export class PatientRangeComponent implements OnInit {
         });
         csvData.push(['', '']); // Empty row for separation
       }
-  
+
       // Add patient records
       csvData.push(['Patient Records']);
       csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp']);
       this.allRecords.forEach(record => {
         csvData.push([record.currentPatientDetails.patientId,
-           record.enteredInterpretation, 
+           record.enteredInterpretation,
            record.enteredResult, record.timestamp]);
       });
-  
+
       // Convert CSV data to a string
       const csvString = Papa.unparse(csvData, { header: false });
-  
+
       // Convert the string to a Blob
       const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
-  
+
       // Save the Blob as a CSV file
       saveAs(blob, 'patient_records.csv');
     } else {
       alert("You can download the records after the session ends");
     }
   }
-  
-  
+
+
   isTimerBlockClicked() {
 
     if((this.isShowTimer === false) && this.isPasswordCorrect()) {
@@ -233,7 +236,7 @@ export class PatientRangeComponent implements OnInit {
 
   isPasswordCorrect() {
     const enteredPassword = prompt("Enter the password");
-  
+
     if (enteredPassword === this.password) {
       alert('Password is correct!');
       return true;
@@ -242,6 +245,6 @@ export class PatientRangeComponent implements OnInit {
       return false;
     }
   }
-  
-  
+
+
 }
