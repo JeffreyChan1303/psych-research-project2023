@@ -77,8 +77,15 @@ export class PatientRangeComponent implements OnInit {
       enteredPatientId: this.patientForm.value.patientId,
       enteredInterpretation: this.patientForm.value.interpretation,
       enteredResult: isInCorrectRange,
-      timestamp: new Date()
+      timestamp: new Date(),
+      lastInteraction: 0
     };
+    let lastInteraction = 0
+
+    if(this.allRecords.length >= 1) {
+      lastInteraction = this.getTimestampDifferenceInSeconds(this.allRecords[this.allRecords.length - 1].timestamp, new Date())
+      record.lastInteraction = lastInteraction
+    }
 
     this.allRecords.push(record);
 
@@ -91,6 +98,16 @@ export class PatientRangeComponent implements OnInit {
       patientId: '',
       interpretation: ''
     });
+  }
+
+  getTimestampDifferenceInSeconds(start: Date, end: Date): number {
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+  
+    const timeDifferenceInMilliseconds = endTime - startTime;
+    const timeDifferenceInSeconds = Math.floor(timeDifferenceInMilliseconds / 1000);
+  
+    return timeDifferenceInSeconds;
   }
 
   startTimer() {
@@ -168,7 +185,7 @@ export class PatientRangeComponent implements OnInit {
 
   downloadRecords() {
     console.log(this.timeRemaining, "time Remaining")
-    if (this.timeRemaining  = 0) {
+    if (this.timeRemaining === 0) {
       // Create CSV data
       const csvData: any[] = [];
       csvData.push(['Field', 'Value']); // Header
@@ -204,11 +221,11 @@ export class PatientRangeComponent implements OnInit {
 
       // Add patient records
       csvData.push(['Patient Records']);
-      csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp']);
+      csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp', 'LastInteraction']);
       this.allRecords.forEach(record => {
         csvData.push([record.currentPatientDetails.patientId,
            record.enteredInterpretation,
-           record.enteredResult, record.timestamp]);
+           record.enteredResult, record.timestamp, record.lastInteraction]);
       });
 
       // Convert CSV data to a string
