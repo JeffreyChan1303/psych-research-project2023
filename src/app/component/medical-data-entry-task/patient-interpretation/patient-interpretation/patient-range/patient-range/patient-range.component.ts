@@ -25,6 +25,8 @@ export class PatientRangeComponent implements OnInit {
   isShowTimer = false;
   password = "researcher2023";
   isSubmitButtonActive = false;
+  breakAccepted: boolean = true; // Variable to store the break acceptance status
+  breakTiming: any[] = [];
 
 
   constructor(private fb: FormBuilder) {}
@@ -154,6 +156,7 @@ export class PatientRangeComponent implements OnInit {
 
   showBreakPopup() {
     const breakDurationInSeconds = this.patientForm.value.breakDuration;
+    console.log(this.allRecords)
 
     // Display the popup
     const userAcceptsBreak = confirm('Take a break?');
@@ -161,10 +164,19 @@ export class PatientRangeComponent implements OnInit {
       // Set the breakRemaining to the break duration
       this.breakRemaining = breakDurationInSeconds;
       this.isSubmitButtonActive = true;
+      this.breakTiming.push({
+        isBreakAccepted: true,
+        time: new Date()
+      })
       // Continue with the task duration timer
       this.startTimer();
     } else {
-      // Implement logic for what to do when the user declines a break
+      this.breakAccepted = false;
+      this.breakTiming.push({
+        isBreakAccepted: false,
+        time: new Date()
+      })
+      console.log('Break declined by user');
     }
   }
 
@@ -225,8 +237,17 @@ export class PatientRangeComponent implements OnInit {
       this.allRecords.forEach(record => {
         csvData.push([record.currentPatientDetails.patientId,
            record.enteredInterpretation,
-           record.enteredResult, record.timestamp, record.lastInteraction]);
+           record.enteredResult, 
+           record.timestamp, 
+           record.lastInteraction
+          ]);
       });
+
+      csvData.push(['', '']);
+      csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
+      this.breakTiming.forEach(eachTime => {
+        csvData.push([eachTime.isBreakAccepted, eachTime.time])
+      })
 
       // Convert CSV data to a string
       const csvString = Papa.unparse(csvData, { header: false });
