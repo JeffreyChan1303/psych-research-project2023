@@ -17,6 +17,11 @@ export class PatientDetailsComponent implements OnChanges {
     private dataService: DataService
   ) {}
 
+  ngOnInit() {
+    this.initForm();
+    this.assignFormValue(this.data);
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data) {
       console.log(this.randomNumber)

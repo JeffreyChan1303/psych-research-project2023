@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { PatientSessionComponent } from './patient-session.component';
 
@@ -8,7 +9,8 @@ describe('PatientSessionComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PatientSessionComponent]
+      declarations: [PatientSessionComponent],
+      imports: [ReactiveFormsModule],
     });
     fixture = TestBed.createComponent(PatientSessionComponent);
     component = fixture.componentInstance;

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { PatientRangeComponent } from './patient-range.component';
 
@@ -8,7 +9,8 @@ describe('PatientRangeComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [PatientRangeComponent]
+      declarations: [PatientRangeComponent],
+      imports: [ReactiveFormsModule],
     });
     fixture = TestBed.createComponent(PatientRangeComponent);
     component = fixture.componentInstance;

@@ -14,6 +14,11 @@ export class PatientMaleFemaleComponent implements OnChanges {
 
   constructor(private fb: FormBuilder) {}
 
+  ngOnInit() {
+    this.initForm();
+    this.assignFormValue();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
       this.initForm();
@@ -32,6 +37,7 @@ export class PatientMaleFemaleComponent implements OnChanges {
   assignFormValue() {
     // Assuming 'data' is an object with 'femaleRange' and 'maleRange' properties
     if (this.data) {
+      console.log(this.data, "data")
       const firstPatient = this.data[this.randomNumber];
       this.patientForm.patchValue({
         femaleName: firstPatient.femaleRange,
