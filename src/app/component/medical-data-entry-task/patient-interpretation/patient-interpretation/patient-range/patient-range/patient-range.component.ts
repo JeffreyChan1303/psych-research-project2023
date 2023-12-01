@@ -198,7 +198,7 @@ export class PatientRangeComponent implements OnInit {
 
   downloadRecords() {
     console.log(this.timeRemaining, "time Remaining")
-    if (this.timeRemaining !== 0) {
+    if (this.timeRemaining === 0) {
       // Create CSV data
       const csvData: any[] = [];
       csvData.push(['Field', 'Value']); // Header
@@ -239,7 +239,7 @@ export class PatientRangeComponent implements OnInit {
         csvData.push([record.currentPatientDetails.patientId,
            record.enteredInterpretation,
            record.enteredResult, 
-           record.timestamp.toString(), 
+           record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }), 
            record.lastInteraction
           ]);
       });
@@ -247,7 +247,7 @@ export class PatientRangeComponent implements OnInit {
       csvData.push(['', '']);
       csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
       this.breakTiming.forEach(eachTime => {
-        csvData.push([eachTime.isBreakAccepted, eachTime.time.toString()])
+        csvData.push([eachTime.isBreakAccepted, eachTime.time.toLocaleString('en-US', { timeZone: 'America/New_York' })])
       })
 
       // Convert CSV data to a string
