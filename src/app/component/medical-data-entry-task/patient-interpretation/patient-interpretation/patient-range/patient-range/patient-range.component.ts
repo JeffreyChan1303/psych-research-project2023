@@ -1,6 +1,7 @@
 // patient-range.component.ts
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { SessionService } from 'src/app/service/session.service';
 
 import { saveAs } from 'file-saver';
 import * as Papa from 'papaparse';
@@ -29,7 +30,7 @@ export class PatientRangeComponent implements OnInit {
   breakTiming: any[] = [];
 
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private sessionService: SessionService) {}
 
   ngOnInit() {
     this.patientForm = this.fb.group({
@@ -197,13 +198,13 @@ export class PatientRangeComponent implements OnInit {
 
   downloadRecords() {
     console.log(this.timeRemaining, "time Remaining")
-    if (this.timeRemaining === 0) {
+    if (this.timeRemaining !== 0) {
       // Create CSV data
       const csvData: any[] = [];
       csvData.push(['Field', 'Value']); // Header
 
       // Add user inputs
-      csvData.push(['Participant ID', this.patientForm.value.patientId]);
+      csvData.push(['Participant ID', this.sessionService.getParticipantNumber()]);
       csvData.push(['Interpretation', this.patientForm.value.interpretation]);
       csvData.push(['', '']); // Empty row for separation
 
@@ -233,7 +234,7 @@ export class PatientRangeComponent implements OnInit {
 
       // Add patient records
       csvData.push(['Patient Records']);
-      csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp', 'LastInteraction']);
+      csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp', 'Last Interaction']);
       this.allRecords.forEach(record => {
         csvData.push([record.currentPatientDetails.patientId,
            record.enteredInterpretation,
