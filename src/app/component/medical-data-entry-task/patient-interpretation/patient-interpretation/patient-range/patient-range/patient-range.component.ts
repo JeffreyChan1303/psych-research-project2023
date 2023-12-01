@@ -203,7 +203,7 @@ export class PatientRangeComponent implements OnInit {
       csvData.push(['Field', 'Value']); // Header
 
       // Add user inputs
-      csvData.push(['Patient ID', this.patientForm.value.patientId]);
+      csvData.push(['Participant ID', this.patientForm.value.patientId]);
       csvData.push(['Interpretation', this.patientForm.value.interpretation]);
       csvData.push(['', '']); // Empty row for separation
 
@@ -238,7 +238,7 @@ export class PatientRangeComponent implements OnInit {
         csvData.push([record.currentPatientDetails.patientId,
            record.enteredInterpretation,
            record.enteredResult, 
-           record.timestamp, 
+           record.timestamp.toString(), 
            record.lastInteraction
           ]);
       });
@@ -246,7 +246,7 @@ export class PatientRangeComponent implements OnInit {
       csvData.push(['', '']);
       csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
       this.breakTiming.forEach(eachTime => {
-        csvData.push([eachTime.isBreakAccepted, eachTime.time])
+        csvData.push([eachTime.isBreakAccepted, eachTime.time.toString()])
       })
 
       // Convert CSV data to a string

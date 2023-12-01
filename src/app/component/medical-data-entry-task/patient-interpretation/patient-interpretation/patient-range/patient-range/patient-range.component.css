@@ -126,6 +126,10 @@ button:hover {
     background-color: #45a049;
 }
 
+button:disabled {
+  background-color: #888; /* Gray color */
+  color: black
+}
 .disabled-button {
   background-color: #888; /* Gray color */
   color: black;
