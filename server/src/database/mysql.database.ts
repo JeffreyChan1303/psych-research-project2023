@@ -13,25 +13,25 @@ const pool = mysql
   .promise();
 
 export const showTables = async () => {
-  const response = await pool.query('show tables;');
-  console.log(response);
-  return response;
+  const [rows, queryData] = await pool.query('show tables;');
+  console.log(rows);
+  return rows;
 };
 
 // function for when participant logs in, to get the settings
 export const findParticipantById = async (id: string) => {
-  const response = await pool.query(
+  const [rows, queryData] = await pool.query(
     'SELECT * FROM Participants WHERE participant_number = ?;',
     [id]
   );
-  console.log(response);
-  return response;
+  console.log(rows);
+  return rows;
 };
 
 export const findAllSubmissions = async () => {
-  const response = await pool.query('SELECT * FROM Submissions');
-  console.log(response);
-  return response;
+  const [rows, queryData] = await pool.query('SELECT * FROM Submissions');
+  console.log(rows);
+  return rows;
 };
 
 // the queries that we will need to use
@@ -56,12 +56,12 @@ export const insertBreak = async (
   has_accepted: boolean,
   duration: number
 ) => {
-  const response = await pool.query(
+  const queryData = await pool.query(
     'INSERT INTO Breaks (session_id, has_accepted, duration) VALUES (?, ?, ?);',
     [session_id, has_accepted, duration]
   );
-  console.log(response);
-  return response;
+  console.log(queryData);
+  return queryData;
 };
 
 // create submission info
@@ -73,12 +73,12 @@ export const insertSubmission = async (
   last_interaction: number,
   is_valid: boolean
 ) => {
-  const response = await pool.query(
+  const queryData = await pool.query(
     'INSERT INTO Submissions (session_id, patient_id, interpretation, last_interaction, is_valid) VALUES (?, ?, ?, ?, ?);',
     [session_id, patient_id, interpretation, last_interaction, is_valid]
   );
-  console.log(response);
-  return response;
+  console.log(queryData);
+  return queryData;
 };
 
 // create logging info ()
@@ -87,12 +87,12 @@ export const insertSession = async (
   participant_number: number,
   duration: number
 ) => {
-  const response = await pool.query(
+  const queryData = await pool.query(
     'INSERT INTO Sessions (participant_number, duration) VALUES (?, ?);',
     [participant_number, duration]
   );
-  console.log(response);
-  return response;
+  console.log(queryData);
+  return queryData;
 };
 
 // create participant info (will have 2 functions, 1 for automatic creation and 1 for manual creation)
@@ -105,7 +105,7 @@ export const insertParticipant = async (
   break_count_interval: number,
   break_time_interval: number
 ) => {
-  const response = await pool.query(
+  const queryData = await pool.query(
     'INSERT INTO Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) VALUES (?, ?, ?, ?, ?, ?);',
     [
       participant_number,
@@ -116,8 +116,8 @@ export const insertParticipant = async (
       break_time_interval,
     ]
   );
-  console.log(response);
-  return response;
+  console.log(queryData);
+  return queryData;
 };
 
 // update settings
@@ -129,7 +129,7 @@ export const updateParticipantSettings = async (
   break_time_interval: number,
   participant_number: number
 ) => {
-  const response = await pool.query(
+  const queryData = await pool.query(
     'UPDATE Participants SET task_duration = ?, break_duration = ?, break_count_interval = ?, break_time_interval = ? WHERE participant_number = ?;',
     [
       task_duration,
@@ -139,6 +139,5 @@ export const updateParticipantSettings = async (
       participant_number,
     ]
   );
-  console.log(response);
-  return response;
+  return queryData;
 };

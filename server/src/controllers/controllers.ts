@@ -3,9 +3,9 @@ import type { Request, Response } from 'express';
 
 export const getTables = async (req: Request, res: Response) => {
   try {
-    const response = await database.showTables();
-    res.send(response);
-    return response;
+    const data = await database.showTables();
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -14,10 +14,9 @@ export const getTables = async (req: Request, res: Response) => {
 export const getParticipantById = async (req: Request, res: Response) => {
   try {
     // will need to fix this typing and learn how to do it
-    const response = await database.findParticipantById(req.query.id as string);
-
-    res.send(response);
-    return response;
+    const data = await database.findParticipantById(req.params.id as string);
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -25,9 +24,9 @@ export const getParticipantById = async (req: Request, res: Response) => {
 
 export const getAllSubmissions = async (req: Request, res: Response) => {
   try {
-    const response = await database.findAllSubmissions();
-    res.send(response);
-    return response;
+    const data = await database.findAllSubmissions();
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -35,13 +34,15 @@ export const getAllSubmissions = async (req: Request, res: Response) => {
 
 export const createBreak = async (req: Request, res: Response) => {
   try {
-    const response = await database.insertBreak(
+    // will need to fix this type
+    const data: any = await database.insertBreak(
       req.body.session_id,
       req.body.has_accepted,
       req.body.duration
     );
-    res.send(response);
-    return response;
+    res.send(data);
+
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -49,34 +50,33 @@ export const createBreak = async (req: Request, res: Response) => {
 
 export const createSubmission = async (req: Request, res: Response) => {
   try {
-    const response = await database.insertSubmission(
+    const data = await database.insertSubmission(
       req.body.session_id,
       req.body.patient_id,
       req.body.interpretation,
       req.body.last_interaction,
       req.body.is_valid
     );
-    res.send(response);
-    return response;
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
 };
 export const createSession = async (req: Request, res: Response) => {
   try {
-    const response = await database.insertSession(
-      req.body.participant_number,
-      req.body.duration
-    );
-    res.send(response);
-    return response;
+    const { participant_number, duration } = req.body;
+    const data = await database.insertSession(participant_number, duration);
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
 };
 export const createParticipant = async (req: Request, res: Response) => {
   try {
-    const response = await database.insertParticipant(
+    // have a query that checks to see if the participant has already been created!
+    const data = await database.insertParticipant(
       req.body.participant_number,
       req.body.full_name,
       req.body.task_duration,
@@ -84,8 +84,8 @@ export const createParticipant = async (req: Request, res: Response) => {
       req.body.break_count_interval,
       req.body.break_time_interval
     );
-    res.send(response);
-    return response;
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }
@@ -95,15 +95,15 @@ export const updateParticipantSettings = async (
   res: Response
 ) => {
   try {
-    const response = await database.updateParticipantSettings(
+    const data = await database.updateParticipantSettings(
       req.body.task_duration,
       req.body.break_duration,
       req.body.break_count_interval,
       req.body.break_time_interval,
       req.body.participant_number
     );
-    res.send(response);
-    return response;
+    res.send(data);
+    return data;
   } catch (err) {
     console.log(err);
   }

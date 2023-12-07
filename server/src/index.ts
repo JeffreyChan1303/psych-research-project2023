@@ -4,6 +4,8 @@ import routes from './routes/routes';
 const app = express();
 const port = process.env.MYSQL_PORT || 3000;
 
+app.use(express.json());
+
 app.listen(port, () => {
   console.log(`MedTask Server listening at http://localhost:${port}`);
 });
