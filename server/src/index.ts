@@ -8,7 +8,7 @@ const port = process.env.MYSQL_PORT || 3000;
 app.use(express.json());
 
 app.listen(port, () => {
-  console.log(`MedTask Server listening at http://localhost:${port}`);
+  console.log(`MedTask Server listening at port: ${port}`);
 });
 
 app.use('/api', routes);
@@ -22,9 +22,6 @@ cron.schedule('*/10 * * * *', () => {
     '\n'
   );
   const exec = require('child_process').exec;
-  // exec('ping -c 1 localhost', function (err: any, stdout: any, stderr: any) {
-  //   console.log(stdout);
-  // });
   exec(
     `curl ${process.env.SELF_PING_URL}`,
     function (err: any, stdout: any, stderr: any) {

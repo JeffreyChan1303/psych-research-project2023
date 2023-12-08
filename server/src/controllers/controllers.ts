@@ -1,4 +1,4 @@
-import * as database from '../database/mysql.database';
+import * as database from '../models';
 import type { Request, Response } from 'express';
 
 export const getTables = async (req: Request, res: Response) => {
@@ -10,11 +10,41 @@ export const getTables = async (req: Request, res: Response) => {
   }
 };
 
+// make 2 functions to get all submissions by participant number
+// and get all breaks by participant number
+export const getAllSubmissionsByParticipantNumber = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const data = await database.findAllSubmissionsByParticipantNumber(
+      req.params.participant_number
+    );
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const getAllBreaksByParticipantNumber = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const data = await database.findAllBreaksByParticipantNumber(
+      req.params.participant_number
+    );
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const getParticipantByParticipantNumber = async (
   req: Request,
   res: Response
 ) => {
   try {
+    // should check if the participant is already created, if not, we generate a new participant!!
     const data = await database.findParticipantByParticipantNumber(
       req.params.participant_number
     );
