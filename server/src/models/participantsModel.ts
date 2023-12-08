@@ -19,17 +19,10 @@ export const findParticipantById = async (id: string) => {
 
 // create participant info (will have 2 functions, 1 for automatic creation and 1 for manual creation)
 //   insert into Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) values (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval);
-export const insertParticipant = async (
-  participant_number: number,
-  full_name: string,
-  task_duration: number,
-  break_duration: number,
-  break_count_interval: number,
-  break_time_interval: number
-) => {
+export const insertParticipant = async (participant_number: string, full_name: string) => {
   const queryData = await pool.query<ResultSetHeader>(
-    'INSERT INTO Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) VALUES (?, ?, ?, ?, ?, ?);',
-    [participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval]
+    'INSERT INTO Participants (participant_number, full_name) VALUES (?, ?);',
+    [participant_number, full_name]
   );
   console.log(queryData);
   return queryData;

@@ -1,3 +1,4 @@
+import { create } from 'domain';
 import * as database from '../models';
 import type { Request, Response } from 'express';
 
@@ -33,9 +34,17 @@ export const getParticipantByParticipantNumber = async (req: Request, res: Respo
   try {
     // should check if the participant is already created, if not, we generate a new participant!!
     const data = await database.findParticipantByParticipantNumber(req.params.participant_number);
-    res.status(200).json(data);
+
+    let createdParticipant;
+    // create new participant if not found
+    if (data.length === 0) {
+      const queryData = await database.insertParticipant(req.params.participant_number, '');
+      createdParticipant = await database.findParticipantById(queryData[0].insertId.toString());
+    }
+    res.status(200).json(createdParticipant || data);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 
@@ -56,10 +65,7 @@ export const createBreak = async (req: Request, res: Response) => {
     res.status(201).json(createdBreak);
   } catch (err) {
     console.log(err);
-    if (err instanceof Error)
-      res.status(404).json({
-        message: err.message
-      });
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 
@@ -88,27 +94,16 @@ export const createSession = async (req: Request, res: Response) => {
     console.log(err);
 
     if (err instanceof Error) {
-      res.status(404).json({
-        message: err.message
-      });
+      res.status(404).json({ message: err.message });
     } else {
-      res.status(404).json({
-        message: 'Create Session: Unknown error occurred'
-      });
+      res.status(404).json({ message: 'Create Session: Unknown error occurred' });
     }
   }
 };
 export const createParticipant = async (req: Request, res: Response) => {
   try {
     // have a query that checks to see if the participant has already been created!
-    const data = await database.insertParticipant(
-      req.body.participant_number,
-      req.body.full_name,
-      req.body.task_duration,
-      req.body.break_duration,
-      req.body.break_count_interval,
-      req.body.break_time_interval
-    );
+    const data = await database.insertParticipant(req.body.participant_number, req.body.full_name);
     const createdParticipant = await database.findParticipantById(data[0].insertId.toString());
     res.status(201).json(createdParticipant);
   } catch (err) {
@@ -128,9 +123,6 @@ export const updateParticipantSettings = async (req: Request, res: Response) => 
     res.status(201).json(updatedParticipant);
   } catch (err) {
     console.log(err);
-    if (err instanceof Error)
-      res.status(404).json({
-        message: err.message
-      });
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
