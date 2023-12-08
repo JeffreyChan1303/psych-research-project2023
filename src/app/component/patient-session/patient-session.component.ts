@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SessionService } from 'src/app/service/session.service';
+import { DataService } from 'src/app/service/data.service';
 
 @Component({
   selector: 'app-patient-session',
@@ -11,7 +12,12 @@ import { SessionService } from 'src/app/service/session.service';
 export class PatientSessionComponent implements OnInit {
   participantForm!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private sessionService: SessionService) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private sessionService: SessionService,
+    private dataService: DataService
+  ) {}
 
   ngOnInit() {
     this.initForm();
@@ -19,7 +25,10 @@ export class PatientSessionComponent implements OnInit {
 
   initForm() {
     this.participantForm = this.formBuilder.group({
-      participantNumber: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+      participantNumber: [
+        '',
+        [Validators.required, Validators.pattern(/^\d{3}$/)],
+      ],
     });
   }
 
@@ -28,9 +37,21 @@ export class PatientSessionComponent implements OnInit {
       // You can access the entered participant number using this.participantForm.value.participantNumber
       this.router.navigate(['/data-entry-task']);
       // save the session participant id into the session service
-      this.sessionService.setParticipantNumber(this.participantForm.value.participantNumber);
+      this.sessionService.setParticipantNumber(
+        this.participantForm.value.participantNumber
+      );
+      // get the participant data from the server, so we can load the participant settings for task time, break time, etc.
+      this.dataService
+        .getParticipantByParticipantNumber(
+          this.participantForm.value.participantNumber
+        )
+        .subscribe((data) => {
+          console.log('data: ', data);
+        });
     } else {
-      alert("Please double check the participant number and try again. it should be three digit between 100 to 400")
+      alert(
+        'Please double check the participant number and try again. it should be three digit between 100 to 400'
+      );
     }
   }
 }

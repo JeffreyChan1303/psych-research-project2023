@@ -1,18 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { DataService } from 'src/app/service/daata.service';
+import { DataService } from 'src/app/service/data.service';
 
 @Component({
   selector: 'app-medical-data-entry-task',
   templateUrl: './medical-data-entry-task.component.html',
-  styleUrls: ['./medical-data-entry-task.component.css']
+  styleUrls: ['./medical-data-entry-task.component.css'],
 })
 export class MedicalDataEntryTaskComponent implements OnInit {
-  data: any 
+  data: any;
   randomNumber!: number;
-  constructor(
-    private dataService: DataService
-  ) {}
+  constructor(private dataService: DataService) {}
 
   ngOnInit() {
     // Load data from different sources
@@ -22,15 +20,15 @@ export class MedicalDataEntryTaskComponent implements OnInit {
 
   loadData(jsonPath: string) {
     this.dataService.getData(jsonPath).subscribe(
-      data => {
+      (data) => {
         this.data = data;
       },
-      error => {
+      (error) => {
         console.error('Error loading JSON data:', error);
       }
     );
-    
-    this.randomNumber = Math.floor(Math.random() * 21); 
+
+    this.randomNumber = Math.floor(Math.random() * 21);
   }
 
   handleFormSubmission() {

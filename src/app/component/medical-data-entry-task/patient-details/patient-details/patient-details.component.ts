@@ -1,11 +1,17 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { DataService } from 'src/app/service/daata.service';
+import { DataService } from 'src/app/service/data.service';
 
 @Component({
   selector: 'app-patient-details',
   templateUrl: './patient-details.component.html',
-  styleUrls: ['./patient-details.component.css']
+  styleUrls: ['./patient-details.component.css'],
 })
 export class PatientDetailsComponent implements OnChanges {
   @Input() data: any;
@@ -24,12 +30,11 @@ export class PatientDetailsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data) {
-      console.log(this.randomNumber)
+      console.log(this.randomNumber);
       this.initForm();
       this.assignFormValue(this.data);
     }
   }
-
 
   initForm() {
     // Create an empty form
@@ -50,7 +55,7 @@ export class PatientDetailsComponent implements OnChanges {
   assignFormValue(data: string | any[]) {
     if (Array.isArray(data) && data.length > 0) {
       const firstPatient = data[this.randomNumber];
-  
+
       // Patch the values if data is available
       this.patientForm.patchValue({
         patientName: firstPatient.patientName,
@@ -61,10 +66,9 @@ export class PatientDetailsComponent implements OnChanges {
         hr: firstPatient.hr,
         qtIntervals: firstPatient.qtIntervals,
       });
-  
+
       // Log the data after it's patched into the form
       // console.log(this.patientForm.value);
     }
   }
-  
 }
