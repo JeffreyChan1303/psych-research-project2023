@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class SessionService {
   protected participantNumber: Number | undefined;
 
-  constructor() { }
+  constructor() {}
 
   getParticipantNumber(): Number | undefined {
     return this.participantNumber;
@@ -14,5 +14,5 @@ export class SessionService {
 
   setParticipantNumber(participantNumber: Number): void {
     this.participantNumber = participantNumber;
-  } 
+  }
 }

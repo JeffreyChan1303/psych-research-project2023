@@ -7,7 +7,7 @@ import { DataService } from 'src/app/service/data.service';
 @Component({
   selector: 'app-patient-session',
   templateUrl: './patient-session.component.html',
-  styleUrls: ['./patient-session.component.css'],
+  styleUrls: ['./patient-session.component.css']
 })
 export class PatientSessionComponent implements OnInit {
   participantForm!: FormGroup;
@@ -25,10 +25,7 @@ export class PatientSessionComponent implements OnInit {
 
   initForm() {
     this.participantForm = this.formBuilder.group({
-      participantNumber: [
-        '',
-        [Validators.required, Validators.pattern(/^\d{3}$/)],
-      ],
+      participantNumber: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]]
     });
   }
 
@@ -37,21 +34,30 @@ export class PatientSessionComponent implements OnInit {
       // You can access the entered participant number using this.participantForm.value.participantNumber
       this.router.navigate(['/data-entry-task']);
       // save the session participant id into the session service
-      this.sessionService.setParticipantNumber(
-        this.participantForm.value.participantNumber
-      );
+      this.sessionService.setParticipantNumber(this.participantForm.value.participantNumber);
       // get the participant data from the server, so we can load the participant settings for task time, break time, etc.
       this.dataService
-        .getParticipantByParticipantNumber(
-          this.participantForm.value.participantNumber
-        )
-        .subscribe((data) => {
-          console.log('data: ', data);
+        .getParticipantByParticipantNumber(this.participantForm.value.participantNumber)
+        .subscribe((participantData) => {
+          console.log('participantData: ', participantData);
+
+          // create a new session
+          this.dataService
+            .createSession({
+              participant_number: this.participantForm.value.participantNumber,
+              duration: participantData[0].task_duration
+            })
+            .subscribe((newSession) => {
+              console.log('newSession: ', {
+                ...newSession,
+                created_at: new Date(newSession[0].created_at)
+              });
+              // save the session id into the session service
+              // so I can refer back when I create a new submission or break
+            });
         });
     } else {
-      alert(
-        'Please double check the participant number and try again. it should be three digit between 100 to 400'
-      );
+      alert('Please double check the participant number and try again. it should be three digit between 100 to 400');
     }
   }
 }

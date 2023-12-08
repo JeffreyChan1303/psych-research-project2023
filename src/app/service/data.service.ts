@@ -4,9 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class DataService {
+  // private apiUrl = 'ACTUAL_API_URL_HERE';
   private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
@@ -15,21 +16,13 @@ export class DataService {
     return this.http.get<any>(jsonPath);
   }
 
-  getParticipantByParticipantNumber(
-    participant_number: string
-  ): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/participantByParticipantNumber/${participant_number}`
-    );
+  getParticipantByParticipantNumber(participant_number: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/participantByParticipantNumber/${participant_number}`);
   }
 
   // this will be get csv file. need to fix this, needs session info
-  getSubmissionsAndBreakInfoByPatientId(
-    participant_number: string
-  ): Observable<any> {
-    return this.http.get<any>(
-      `${this.apiUrl}/allSubmissionsByParticipantNumber/${participant_number}`
-    );
+  getSubmissionsAndBreakInfoByPatientId(participant_number: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/allSubmissionsByParticipantNumber/${participant_number}`);
   }
 
   createBreak(values: any): Observable<any> {

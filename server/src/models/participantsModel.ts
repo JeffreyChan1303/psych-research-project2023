@@ -2,9 +2,7 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { pool } from '../models';
 
 // function for when participant logs in, to get the settings
-export const findParticipantByParticipantNumber = async (
-  participant_number: string
-) => {
+export const findParticipantByParticipantNumber = async (participant_number: string) => {
   const [rows, queryData] = await pool.query<RowDataPacket[]>(
     'SELECT * FROM Participants WHERE participant_number = ?;',
     [participant_number]
@@ -14,10 +12,7 @@ export const findParticipantByParticipantNumber = async (
 };
 
 export const findParticipantById = async (id: string) => {
-  const [rows, queryData] = await pool.query<RowDataPacket[]>(
-    'SELECT * FROM Participants WHERE id = ?;',
-    [id]
-  );
+  const [rows, queryData] = await pool.query<RowDataPacket[]>('SELECT * FROM Participants WHERE id = ?;', [id]);
   console.log(rows);
   return rows;
 };
@@ -34,14 +29,7 @@ export const insertParticipant = async (
 ) => {
   const queryData = await pool.query<ResultSetHeader>(
     'INSERT INTO Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) VALUES (?, ?, ?, ?, ?, ?);',
-    [
-      participant_number,
-      full_name,
-      task_duration,
-      break_duration,
-      break_count_interval,
-      break_time_interval,
-    ]
+    [participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval]
   );
   console.log(queryData);
   return queryData;
@@ -58,13 +46,7 @@ export const updateParticipantSettings = async (
 ) => {
   const queryData = await pool.query<ResultSetHeader>(
     'UPDATE Participants SET task_duration = ?, break_duration = ?, break_count_interval = ?, break_time_interval = ? WHERE participant_number = ?;',
-    [
-      task_duration,
-      break_duration,
-      break_count_interval,
-      break_time_interval,
-      participant_number,
-    ]
+    [task_duration, break_duration, break_count_interval, break_time_interval, participant_number]
   );
   console.log(queryData);
   return queryData;
