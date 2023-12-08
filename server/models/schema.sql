@@ -3,8 +3,8 @@ USE MedTask;
 
 CREATE TABLE Participants (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  participant_number SMALLINT UNSIGNED UNIQUE NOT NULL CHECK (participant_number > 99 AND participant_number < 400),
-  full_name VARCHAR(255),
+  participant_number SMALLINT UNSIGNED NOT NULL CHECK (participant_number > 99 AND participant_number < 400),
+  full_name VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   task_duration INT UNSIGNED NOT NULL DEFAULT 45,
@@ -12,7 +12,7 @@ CREATE TABLE Participants (
   break_count_interval INT UNSIGNED NOT NULL DEFAULT 10,
   break_time_interval INT UNSIGNED NOT NULL DEFAULT 10,
   primary key (id),
-  index (participant_number)
+  unique key (participant_number)
 );
 
 INSERT INTO Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) VALUES (166, 'John Doe', 1000, 100, 5, 100), (167, 'Jane Doe', 1111, 111, 6, 111);

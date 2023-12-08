@@ -1,4 +1,4 @@
-import mysql from 'mysql2';
+import mysql, { ResultSetHeader, RowDataPacket } from 'mysql2';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,15 +13,51 @@ const pool = mysql
   .promise();
 
 export const showTables = async () => {
-  const [rows, queryData] = await pool.query('show tables;');
+  const [rows, queryData] = await pool.query<RowDataPacket[]>('show tables;');
   console.log(rows);
   return rows;
 };
 
 // function for when participant logs in, to get the settings
-export const findParticipantById = async (id: string) => {
-  const [rows, queryData] = await pool.query(
+export const findParticipantByParticipantNumber = async (
+  participant_number: string
+) => {
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
     'SELECT * FROM Participants WHERE participant_number = ?;',
+    [participant_number]
+  );
+  console.log(rows);
+  return rows;
+};
+
+export const findParticipantById = async (id: string) => {
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
+    'SELECT * FROM Participants WHERE id = ?;',
+    [id]
+  );
+  console.log(rows);
+  return rows;
+};
+
+export const findBreakById = async (id: string) => {
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
+    'SELECT * FROM Breaks WHERE id = ?;',
+    [id]
+  );
+  console.log(rows);
+  return rows;
+};
+export const findSubmissionById = async (id: string) => {
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
+    'SELECT * FROM Submissions WHERE id = ?;',
+    [id]
+  );
+  console.log(rows);
+  return rows;
+};
+export const findSessionById = async (id: string) => {
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
+    'SELECT * FROM Sessions WHERE id = ?;',
     [id]
   );
   console.log(rows);
@@ -29,7 +65,9 @@ export const findParticipantById = async (id: string) => {
 };
 
 export const findAllSubmissions = async () => {
-  const [rows, queryData] = await pool.query('SELECT * FROM Submissions');
+  const [rows, queryData] = await pool.query<RowDataPacket[]>(
+    'SELECT * FROM Submissions'
+  );
   console.log(rows);
   return rows;
 };
@@ -56,7 +94,7 @@ export const insertBreak = async (
   has_accepted: boolean,
   duration: number
 ) => {
-  const queryData = await pool.query(
+  const queryData = await pool.query<ResultSetHeader>(
     'INSERT INTO Breaks (session_id, has_accepted, duration) VALUES (?, ?, ?);',
     [session_id, has_accepted, duration]
   );
@@ -73,7 +111,7 @@ export const insertSubmission = async (
   last_interaction: number,
   is_valid: boolean
 ) => {
-  const queryData = await pool.query(
+  const queryData = await pool.query<ResultSetHeader>(
     'INSERT INTO Submissions (session_id, patient_id, interpretation, last_interaction, is_valid) VALUES (?, ?, ?, ?, ?);',
     [session_id, patient_id, interpretation, last_interaction, is_valid]
   );
@@ -87,7 +125,7 @@ export const insertSession = async (
   participant_number: number,
   duration: number
 ) => {
-  const queryData = await pool.query(
+  const queryData = await pool.query<ResultSetHeader>(
     'INSERT INTO Sessions (participant_number, duration) VALUES (?, ?);',
     [participant_number, duration]
   );
@@ -105,7 +143,7 @@ export const insertParticipant = async (
   break_count_interval: number,
   break_time_interval: number
 ) => {
-  const queryData = await pool.query(
+  const queryData = await pool.query<ResultSetHeader>(
     'INSERT INTO Participants (participant_number, full_name, task_duration, break_duration, break_count_interval, break_time_interval) VALUES (?, ?, ?, ?, ?, ?);',
     [
       participant_number,
@@ -129,7 +167,7 @@ export const updateParticipantSettings = async (
   break_time_interval: number,
   participant_number: number
 ) => {
-  const queryData = await pool.query(
+  const queryData = await pool.query<ResultSetHeader>(
     'UPDATE Participants SET task_duration = ?, break_duration = ?, break_count_interval = ?, break_time_interval = ? WHERE participant_number = ?;',
     [
       task_duration,
@@ -139,5 +177,6 @@ export const updateParticipantSettings = async (
       participant_number,
     ]
   );
+  console.log(queryData);
   return queryData;
 };

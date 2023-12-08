@@ -4,7 +4,10 @@ import express from 'express';
 const router = express.Router();
 
 router.get('/', controllers.getTables);
-router.get('/participantById/:id', controllers.getParticipantById);
+router.get(
+  '/participantByParticipantNumber/:participant_number',
+  controllers.getParticipantByParticipantNumber
+);
 router.get('/allSubmissions', controllers.getAllSubmissions);
 
 router.post('/createBreak', controllers.createBreak);

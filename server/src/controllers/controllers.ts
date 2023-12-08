@@ -4,19 +4,21 @@ import type { Request, Response } from 'express';
 export const getTables = async (req: Request, res: Response) => {
   try {
     const data = await database.showTables();
-    res.send(data);
-    return data;
+    res.status(200).json(data);
   } catch (err) {
     console.log(err);
   }
 };
 
-export const getParticipantById = async (req: Request, res: Response) => {
+export const getParticipantByParticipantNumber = async (
+  req: Request,
+  res: Response
+) => {
   try {
-    // will need to fix this typing and learn how to do it
-    const data = await database.findParticipantById(req.params.id as string);
-    res.send(data);
-    return data;
+    const data = await database.findParticipantByParticipantNumber(
+      req.params.participant_number
+    );
+    res.status(200).json(data);
   } catch (err) {
     console.log(err);
   }
@@ -25,8 +27,7 @@ export const getParticipantById = async (req: Request, res: Response) => {
 export const getAllSubmissions = async (req: Request, res: Response) => {
   try {
     const data = await database.findAllSubmissions();
-    res.send(data);
-    return data;
+    res.status(200).json(data);
   } catch (err) {
     console.log(err);
   }
@@ -34,17 +35,19 @@ export const getAllSubmissions = async (req: Request, res: Response) => {
 
 export const createBreak = async (req: Request, res: Response) => {
   try {
-    // will need to fix this type
-    const data: any = await database.insertBreak(
+    const data = await database.insertBreak(
       req.body.session_id,
       req.body.has_accepted,
       req.body.duration
     );
-    res.send(data);
 
-    return data;
+    const createdBreak = await database.findBreakById(
+      data[0].insertId.toString()
+    );
+    res.status(201).json(createdBreak);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 
@@ -57,8 +60,10 @@ export const createSubmission = async (req: Request, res: Response) => {
       req.body.last_interaction,
       req.body.is_valid
     );
-    res.send(data);
-    return data;
+    const createdSubmission = await database.findSubmissionById(
+      data[0].insertId.toString()
+    );
+    res.status(201).json(createdSubmission);
   } catch (err) {
     console.log(err);
   }
@@ -67,8 +72,10 @@ export const createSession = async (req: Request, res: Response) => {
   try {
     const { participant_number, duration } = req.body;
     const data = await database.insertSession(participant_number, duration);
-    res.send(data);
-    return data;
+    const createdSession = await database.findSessionById(
+      data[0].insertId.toString()
+    );
+    res.status(201).json(createdSession);
   } catch (err) {
     console.log(err);
   }
@@ -84,8 +91,10 @@ export const createParticipant = async (req: Request, res: Response) => {
       req.body.break_count_interval,
       req.body.break_time_interval
     );
-    res.send(data);
-    return data;
+    const createdParticipant = await database.findParticipantById(
+      data[0].insertId.toString()
+    );
+    res.status(201).json(createdParticipant);
   } catch (err) {
     console.log(err);
   }
@@ -102,9 +111,13 @@ export const updateParticipantSettings = async (
       req.body.break_time_interval,
       req.body.participant_number
     );
-    res.send(data);
-    return data;
+    const updatedParticipant =
+      await database.findParticipantByParticipantNumber(
+        req.body.participant_number
+      );
+    res.status(201).json(updatedParticipant);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
