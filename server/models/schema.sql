@@ -62,5 +62,14 @@ CREATE TABLE Patients (
 );
 
 
-select * from 
+-- This is the full query we are trying to create
+select * from sessions left join submissions on sessions.id = submissions.session_id left join breaks on sessions.id = breaks.session_id where sessions.participant_number = participant_number;
+
+-- sub query, join breaks, and submissions
+select id as submission_id, session_id, created_at from submissions union all select id as break_id, session_id, created_at from breaks;
+
+
+-- we will split into 2 queries, for submissions, and breaks
+select * from sessions left join submissions on sessions.id = submissions.session_id where sessions.participant_number = ?; [participant_number]
+select * from sessions left join breaks on sessions.id = breaks.session_id where sessions.participant_number = ?; [participant_number]
 

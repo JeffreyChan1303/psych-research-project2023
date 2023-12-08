@@ -74,9 +74,6 @@ export const findAllSubmissions = async () => {
 
 // the queries that we will need to use
 
-// get participant info
-//   select * from Participants where participant_number = participant_number;
-
 // BELOW 3 Queries can be combined into 1 query for admin to retrieve all info of a session!! or a group of sessions!!!
 // get break info
 //   select * from Breaks where session_id = session_id;
