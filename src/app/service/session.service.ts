@@ -5,7 +5,7 @@ import { SessionInputModel } from 'server/src/types';
   providedIn: 'root'
 })
 export class SessionService {
-  protected participantNumber: number | undefined;
+  protected participantNumber: string | undefined;
   protected sessionId: number | undefined;
   protected sessionSettings:
     | {
@@ -19,11 +19,11 @@ export class SessionService {
 
   constructor() {}
 
-  getParticipantNumber(): number | undefined {
+  getParticipantNumber(): string | undefined {
     return this.participantNumber;
   }
 
-  setParticipantNumber(participantNumber: number): void {
+  setParticipantNumber(participantNumber: string): void {
     this.participantNumber = participantNumber;
   }
 

@@ -1,6 +1,7 @@
 // patient-range.component.ts
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SessionService } from 'src/app/service/session.service';
 import { DataService } from 'src/app/service/data.service';
 import { Interpretation } from '../../../../../../../../server/src/types';
@@ -27,35 +28,68 @@ export class PatientRangeComponent implements OnInit {
   allRecords: any[] = [];
   isShowTimer = false;
   password = 'researcher2023';
-  isSubmitButtonActive = false;
+  isSubmitButtonDisabled = false;
   breakAccepted: boolean = true; // Variable to store the break acceptance status
   breakTiming: any[] = [];
+  sessionData:
+    | {
+        participantNumber: string;
+        taskDurationSeconds: number;
+        breakDurationSeconds: number;
+        breakCountInterval: number;
+        breakTimeIntervalSeconds: number;
+        breakIntervalType: string;
+      }
+    | undefined;
 
-  constructor(private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {}
+  constructor(
+    private fb: FormBuilder,
+    private sessionService: SessionService,
+    private dataService: DataService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     // get data from session
+    const participantNumber = this.sessionService.getParticipantNumber();
     const sessionSettings = this.sessionService.getSessionSettings();
-    const taskDuration = sessionSettings.taskDurationSeconds;
-    const breakDuration = sessionSettings.breakDurationSeconds;
-    const breakCountInterval = sessionSettings.breakCountInterval;
-    const breakTimeInterval = sessionSettings.breakTimeIntervalSeconds;
-    if (!taskDuration || !breakDuration || !breakCountInterval || !breakTimeInterval) {
-      alert('patient-range-init: Session data not found!! Unable to start timer!!');
+    if (!sessionSettings || !participantNumber) {
+      alert('patient-range-init: Session settings not found!! Unable to start timer!!');
+      this.router.navigate(['/patient-session']);
       return;
     }
-    this.timeRemaining = taskDuration * 60;
+    const taskDurationSeconds = sessionSettings.taskDurationSeconds;
+    const breakDurationSeconds = sessionSettings.breakDurationSeconds;
+    const breakCountInterval = sessionSettings.breakCountInterval;
+    const breakTimeIntervalSeconds = sessionSettings.breakTimeIntervalSeconds;
+    const breakIntervalType = sessionSettings.breakIntervalType;
+    this.sessionData = {
+      participantNumber: participantNumber,
+      taskDurationSeconds: taskDurationSeconds,
+      breakDurationSeconds: breakDurationSeconds,
+      breakCountInterval: breakCountInterval,
+      breakTimeIntervalSeconds: breakTimeIntervalSeconds,
+      breakIntervalType: breakIntervalType
+    };
+
+    this.timeRemaining = taskDurationSeconds;
 
     this.patientForm = this.fb.group({
-      patientId: [''],
-      interpretation: [],
-      taskDuration: [45], // Default task duration in minutes
-      breakCount: [10], // Default break count after 10 records
-      breakDuration: [10] // Default break duration in seconds
+      patientId: ['', Validators.required],
+      interpretation: [, Validators.required],
+      taskDurationSeconds: [taskDurationSeconds, Validators.required], // Default task duration in seconds
+      breakDurationSeconds: [breakDurationSeconds, Validators.required], // Default break duration in seconds
+      breakTimeIntervalSeconds: [breakTimeIntervalSeconds, Validators.required], // Default break time interval in seconds
+      breakCountInterval: [breakCountInterval, Validators.required],
+      breakIntervalType: [breakIntervalType, Validators.required]
     });
   }
 
   onSubmit() {
+    if (this.patientForm.invalid) {
+      alert('NOT VALID');
+      return;
+    }
     this.formSubmitted.emit();
     this.checkIsDataInRange();
 
@@ -104,6 +138,12 @@ export class PatientRangeComponent implements OnInit {
           created_at: new Date(newSubmission[0].created_at)
         });
       });
+
+    // Reset the form
+    this.patientForm.patchValue({
+      patientId: '',
+      interpretation: ''
+    });
   }
 
   showProgress() {
@@ -174,11 +214,6 @@ export class PatientRangeComponent implements OnInit {
     if (this.totalRecord % this.patientForm.value.breakCount === 0) {
       this.showBreakPopup();
     }
-
-    // this.patientForm.patchValue({
-    //   patientId: '',
-    //   interpretation: ''
-    // });
   }
 
   getTimestampDifferenceInSeconds(start: Date, end: Date): number {
@@ -190,8 +225,33 @@ export class PatientRangeComponent implements OnInit {
 
     return timeDifferenceInSeconds;
   }
-
   startTimer() {
+    this.timerInterval = setInterval(() => {
+      // const currentTime = Date.now();
+      // const elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
+
+      console.log(this.breakRemaining, this.timeRemaining);
+      if (this.breakRemaining > 0) {
+        this.breakRemaining--;
+        this.isSubmitButtonDisabled = true;
+      } else if (this.breakRemaining === 0) {
+        this.breakRemaining--;
+        this.isSubmitButtonDisabled = false;
+      } else if (this.timeRemaining > 0) {
+        this.timeRemaining--;
+        this.isSubmitButtonDisabled = false;
+      } else if (this.timeRemaining === 0) {
+        this.isSubmitButtonDisabled = true;
+        alert('Session is finished, refresh the page to start a new session');
+        clearInterval(this.timerInterval);
+      }
+    }, 1000);
+  }
+
+  originalStartTimer() {
+    if (this.timeRemaining === 0) {
+      this.isSubmitButtonDisabled = false;
+    }
     // Check if there is remaining break time
     if (this.breakRemaining > 0) {
       // If there is, decrease breakRemaining
@@ -200,10 +260,10 @@ export class PatientRangeComponent implements OnInit {
     } else {
       // Otherwise, continue with the task duration timer
       const taskDurationInSeconds =
-        this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDuration * 60;
+        this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDurationSeconds;
 
       // Store the start time to consider the existing countdown time
-      const startTime = Date.now() - (this.patientForm.value.taskDuration * 60 - this.timeRemaining) * 1000;
+      const startTime = Date.now() - (this.patientForm.value.taskDurationSeconds - this.timeRemaining) * 1000;
 
       // Store the interval ID
       this.timerInterval = setInterval(() => {
@@ -217,17 +277,18 @@ export class PatientRangeComponent implements OnInit {
           // Continue counting down the task duration
           this.timeRemaining = taskDurationInSeconds - elapsedTimeInSeconds;
           if (this.breakRemaining === 0) {
-            this.isSubmitButtonActive = false;
+            this.isSubmitButtonDisabled = false;
           }
         } else {
           clearInterval(this.timerInterval);
 
           // If a break is needed, set breakRemaining to the break duration
-          this.breakRemaining = this.patientForm.value.breakDuration;
+          this.breakRemaining = this.patientForm.value.breakDurationSeconds;
           this.startTimer(); // Start the new timer (for the break)
         }
       }, 1000); // Update every second
     }
+    console.log(this.timeRemaining);
   }
 
   showBreakPopup() {
@@ -239,7 +300,7 @@ export class PatientRangeComponent implements OnInit {
     if (userAcceptsBreak) {
       // Set the breakRemaining to the break duration
       this.breakRemaining = breakDurationInSeconds;
-      this.isSubmitButtonActive = true;
+      this.isSubmitButtonDisabled = true;
       this.breakTiming.push({
         isBreakAccepted: true,
         time: new Date()
@@ -280,15 +341,29 @@ export class PatientRangeComponent implements OnInit {
     console.log('Settings Triggered!', this.patientForm);
 
     // Check if triggered by task duration
-    if (this.patientForm.get('taskDuration')?.dirty) {
+    if (this.patientForm.get('taskDurationSeconds')?.dirty) {
       // Reset the timer based on the task duration
-      const taskDurationInSeconds = this.patientForm.value.taskDuration * 60;
-      this.timeRemaining = taskDurationInSeconds;
+      this.timeRemaining = this.patientForm.value.taskDurationSeconds;
       clearInterval(this.timerInterval); // Stop the previous timer
       this.startTimer(); // Start the new timer
 
+      if (!this.sessionData?.participantNumber) {
+        alert('Session participant number not found!! Unable to update participant settings!!');
+        return;
+      }
       // update participant settings in the server
-      // this.dataService.updateParticipantSettings({})
+      this.dataService
+        .updateParticipantSettings({
+          participant_number: this.sessionData.participantNumber,
+          task_duration_seconds: this.patientForm.value.taskDurationSeconds,
+          break_duration_seconds: this.patientForm.value.breakDurationSeconds,
+          break_count_interval: this.patientForm.value.breakCountInterval,
+          break_time_interval_seconds: this.patientForm.value.breakTimeIntervalSeconds,
+          break_interval_type: this.patientForm.value.breakIntervalType
+        })
+        .subscribe((updatedParticipant) => {
+          console.log('Update Participant Data: ', updatedParticipant);
+        });
     }
   }
 

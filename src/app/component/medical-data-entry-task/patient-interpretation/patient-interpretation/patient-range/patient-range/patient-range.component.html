@@ -16,35 +16,54 @@
           <label> <input type="radio" formControlName="interpretation" value="out of range" /> Out of Range </label>
         </div>
       </div>
+
+      <button
+        [disabled]="isSubmitButtonDisabled || this.patientForm.invalid"
+        type="submit"
+        [ngClass]="{ 'disabled-button': isSubmitButtonDisabled }"
+      >
+        Submit
+      </button>
+
       <ng-container *ngIf="isShowTimer">
-        <div class="form-group">
-          <label for="task-duration">Task Duration (minutes)</label>
+        <div class="form-group" style="margin-top: 2rem">
+          <label for="task-duration">Task Duration (seconds)</label>
           <div class="input-with-button">
-            <input type="number" id="task-duration" formControlName="taskDuration" />
-            <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button>
+            <input type="number" id="task-duration" formControlName="taskDurationSeconds" />
+            <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
           </div>
         </div>
-
-        <div class="form-group">
-          <label for="break-count">Break After X Records</label>
-          <div class="input-with-button">
-            <input type="number" id="break-count" formControlName="breakCount" />
-            <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button>
-          </div>
-        </div>
-
         <div class="form-group">
           <label for="break-duration">Break Duration (seconds)</label>
           <div class="input-with-button">
-            <input type="number" id="break-duration" formControlName="breakDuration" />
-            <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button>
+            <input type="number" id="break-duration" formControlName="breakDurationSeconds" />
+            <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="break-count-interval">Break After X Seconds</label>
+          <div class="input-with-button">
+            <input type="number" id="break-count-interval" formControlName="breakCountInterval" />
+            <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="break-time-interval">Break After X Records</label>
+          <div class="input-with-button">
+            <input type="number" id="break-time-interval" formControlName="breakTimeIntervalSeconds" />
+            <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Break Interval Type:</label>
+          <div class="radio-group">
+            <label> <input type="radio" formControlName="breakIntervalType" value="count" /> Count </label>
+            <label> <input type="radio" formControlName="breakIntervalType" value="time" /> Time </label>
           </div>
         </div>
       </ng-container>
-
-      <button [disabled]="isSubmitButtonActive" type="submit" [ngClass]="{ 'disabled-button': isSubmitButtonActive }">
-        Submit
-      </button>
     </form>
   </div>
 
@@ -58,9 +77,11 @@
       </div>
     </div>
 
-    <button type="button" disabled (click)="showProgress()">Show Progress</button>
+    <button type="button" (click)="showProgress()">Show Progress</button>
     <p>
       <button type="button" class="download" (click)="downloadRecords()">Download Records</button>
+    </p>
+    <p>
       <button type="button" class="download" (click)="downloadDataFromDatabase()">
         Download Records From Database
       </button>
@@ -68,6 +89,10 @@
 
     <p>
       <button type="button" (click)="isTimerBlockClicked()">Show timer settings</button>
+    </p>
+    <hr *ngIf="isShowTimer" />
+    <p *ngIf="isShowTimer">
+      <button type="button" (click)="triggerSettings()">Save Participant Settings</button>
     </p>
 
     <p></p>
