@@ -2,6 +2,7 @@ import express from 'express';
 import routes from './routes/routes';
 import cron from 'node-cron';
 import cors from 'cors';
+import type { Request, Response, NextFunction } from 'express';
 
 const app = express();
 const port = process.env.MYSQL_PORT || 3000;
@@ -14,6 +15,10 @@ app.listen(port, () => {
 });
 
 app.use('/api', routes);
+app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
+  console.log(err);
+  res.status(500).send('Internal Server Error');
+});
 
 // create cron job to wake the server every 14 minutes
 console.log(new Date().toLocaleString());

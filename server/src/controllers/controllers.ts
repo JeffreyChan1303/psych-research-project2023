@@ -7,6 +7,7 @@ export const getTables = async (req: Request, res: Response) => {
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 export const getAllSubmissions = async (req: Request, res: Response) => {
@@ -15,6 +16,7 @@ export const getAllSubmissions = async (req: Request, res: Response) => {
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 
@@ -34,6 +36,7 @@ export const getAllBreaksByParticipantNumber = async (req: Request, res: Respons
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(404).json({ message: err.message });
   }
 };
 
@@ -80,6 +83,7 @@ export const createSubmission = async (req: Request, res: Response) => {
     res.status(201).json(createdSubmission);
   } catch (err) {
     console.log(err);
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
 export const createSession = async (req: Request, res: Response) => {
@@ -91,11 +95,7 @@ export const createSession = async (req: Request, res: Response) => {
   } catch (err) {
     console.log(err);
 
-    if (err instanceof Error) {
-      res.status(404).json({ message: err.message });
-    } else {
-      res.status(404).json({ message: 'Create Session: Unknown error occurred' });
-    }
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
 export const updateParticipantSettings = async (req: Request, res: Response) => {
@@ -111,6 +111,6 @@ export const updateParticipantSettings = async (req: Request, res: Response) => 
     res.status(201).json(updatedParticipant);
   } catch (err) {
     console.log(err);
-    if (err instanceof Error) res.status(404).json({ message: err.message });
+    if (err instanceof Error) res.status(500).json({ message: err.message });
   }
 };
