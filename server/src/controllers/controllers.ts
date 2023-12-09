@@ -1,10 +1,17 @@
-import { create } from 'domain';
 import * as database from '../models';
 import type { Request, Response } from 'express';
 
 export const getTables = async (req: Request, res: Response) => {
   try {
     const data = await database.showTables();
+    res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const getAllSubmissions = async (req: Request, res: Response) => {
+  try {
+    const data = await database.findAllSubmissions();
     res.status(200).json(data);
   } catch (err) {
     console.log(err);
@@ -30,7 +37,7 @@ export const getAllBreaksByParticipantNumber = async (req: Request, res: Respons
   }
 };
 
-export const getParticipantByParticipantNumber = async (req: Request, res: Response) => {
+export const getAndCreateParticipantByParticipantNumber = async (req: Request, res: Response) => {
   try {
     // should check if the participant is already created, if not, we generate a new participant!!
     const data = await database.findParticipantByParticipantNumber(req.params.participant_number);
@@ -45,15 +52,6 @@ export const getParticipantByParticipantNumber = async (req: Request, res: Respo
   } catch (err) {
     console.log(err);
     if (err instanceof Error) res.status(404).json({ message: err.message });
-  }
-};
-
-export const getAllSubmissions = async (req: Request, res: Response) => {
-  try {
-    const data = await database.findAllSubmissions();
-    res.status(200).json(data);
-  } catch (err) {
-    console.log(err);
   }
 };
 
@@ -98,16 +96,6 @@ export const createSession = async (req: Request, res: Response) => {
     } else {
       res.status(404).json({ message: 'Create Session: Unknown error occurred' });
     }
-  }
-};
-export const createParticipant = async (req: Request, res: Response) => {
-  try {
-    // have a query that checks to see if the participant has already been created!
-    const data = await database.insertParticipant(req.body.participant_number, req.body.full_name);
-    const createdParticipant = await database.findParticipantById(data[0].insertId.toString());
-    res.status(201).json(createdParticipant);
-  } catch (err) {
-    console.log(err);
   }
 };
 export const updateParticipantSettings = async (req: Request, res: Response) => {
