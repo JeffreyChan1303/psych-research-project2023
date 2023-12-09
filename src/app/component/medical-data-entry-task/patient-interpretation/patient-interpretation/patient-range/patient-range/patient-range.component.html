@@ -42,16 +42,16 @@
         </div>
 
         <div class="form-group">
-          <label for="break-count-interval">Break After X Seconds</label>
+          <label for="break-time-interval">Break After X Seconds</label>
           <div class="input-with-button">
-            <input type="number" id="break-count-interval" formControlName="breakCountInterval" />
+            <input type="number" id="break-time-interval" formControlName="breakTimeIntervalSeconds" />
             <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
           </div>
         </div>
         <div class="form-group">
-          <label for="break-time-interval">Break After X Records</label>
+          <label for="break-count-interval">Break After X Records</label>
           <div class="input-with-button">
-            <input type="number" id="break-time-interval" formControlName="breakTimeIntervalSeconds" />
+            <input type="number" id="break-count-interval" formControlName="breakCountInterval" />
             <!-- <button type="button" class="trigger-button" (click)="triggerSettings()">⚙️</button> -->
           </div>
         </div>
@@ -68,16 +68,18 @@
   </div>
 
   <div class="patient-range-right-container">
-    <div *ngIf="isShowProgressClicked" class="card">
+    <!-- <div *ngIf="isShowProgressClicked" class="card"> -->
+    <div class="card">
       <div class="card-content">
         <p class="card-total-record">Total Record: {{ totalRecord }}</p>
         <p class="card-correct-record">Correct Record: {{ correctRecord }}</p>
         <p class="card-timer">Timer: {{ timeRemaining | formatTime }}</p>
+        <p *ngIf="breakRemaining >= 1" class="card-break">Break Timer: {{ breakRemaining | formatTime }}</p>
         <!-- Your additional progress content goes here -->
       </div>
     </div>
 
-    <button type="button" (click)="showProgress()">Show Progress</button>
+    <!-- <button type="button" (click)="showProgress()">Show Progress</button> -->
     <p>
       <button type="button" class="download" (click)="downloadRecords()">Download Records</button>
     </p>

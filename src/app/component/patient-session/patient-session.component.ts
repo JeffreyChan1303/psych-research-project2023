@@ -37,9 +37,8 @@ export class PatientSessionComponent implements OnInit {
       // save the session participant id into the session service
       this.sessionService.setParticipantNumber(this.participantForm.value.participantNumber);
       // get the participant data from the server, so we can load the participant settings for task time, break time, etc.
-      this.dataService
-        .getParticipantByParticipantNumber(this.participantForm.value.participantNumber)
-        .subscribe((participantData) => {
+      this.dataService.getParticipantByParticipantNumber(this.participantForm.value.participantNumber).subscribe(
+        (participantData) => {
           console.log('participantData: ', participantData);
           // set the session settings
           this.sessionService.setSessionSettings({
@@ -71,7 +70,12 @@ export class PatientSessionComponent implements OnInit {
               // navigate when the session is created
               this.router.navigate(['/data-entry-task']);
             });
-        });
+        },
+        (error) => {
+          console.log('error: ', error);
+          alert('an error occurred when accessing the server. Please try again later.');
+        }
+      );
     } else {
       alert(
         'Please double check the participant number and try again. it should be three digit between 100 to 999 inclusive.'

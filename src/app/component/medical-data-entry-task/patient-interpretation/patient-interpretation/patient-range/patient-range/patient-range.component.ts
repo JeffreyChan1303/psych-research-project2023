@@ -210,8 +210,12 @@ export class PatientRangeComponent implements OnInit {
 
     this.allRecords.push(record);
 
+    console.log(this.patientForm.value.breakIntervalType, this.totalRecord, this.patientForm.value.breakCountInterval);
     // Introduce breaks based on conditions
-    if (this.totalRecord % this.patientForm.value.breakCount === 0) {
+    if (
+      this.patientForm.value.breakIntervalType === 'count' &&
+      this.totalRecord % this.patientForm.value.breakCountInterval === 0
+    ) {
       this.showBreakPopup();
     }
   }
@@ -226,23 +230,31 @@ export class PatientRangeComponent implements OnInit {
     return timeDifferenceInSeconds;
   }
   startTimer() {
+    // keep track of time Spent for the break interval
+    let timeSpent = 0;
     this.timerInterval = setInterval(() => {
-      // const currentTime = Date.now();
-      // const elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
-
-      console.log(this.breakRemaining, this.timeRemaining);
-      if (this.breakRemaining > 0) {
+      if (this.breakRemaining > 1) {
         this.breakRemaining--;
         this.isSubmitButtonDisabled = true;
-      } else if (this.breakRemaining === 0) {
+      } else if (this.breakRemaining === 1) {
         this.breakRemaining--;
         this.isSubmitButtonDisabled = false;
-      } else if (this.timeRemaining > 0) {
+      } else if (this.timeRemaining > 1) {
+        timeSpent++;
         this.timeRemaining--;
         this.isSubmitButtonDisabled = false;
-      } else if (this.timeRemaining === 0) {
+        // check if its a break time
+        if (
+          this.patientForm.value.breakIntervalType === 'time' &&
+          timeSpent % this.patientForm.value.breakTimeIntervalSeconds === 0
+        ) {
+          this.showBreakPopup();
+        }
+      } else if (this.timeRemaining === 1) {
+        timeSpent++;
+        this.timeRemaining--;
         this.isSubmitButtonDisabled = true;
-        alert('Session is finished, refresh the page to start a new session');
+        alert('This session has ended. Refresh the page to start a new session.');
         clearInterval(this.timerInterval);
       }
     }, 1000);
@@ -292,21 +304,19 @@ export class PatientRangeComponent implements OnInit {
   }
 
   showBreakPopup() {
-    const breakDurationInSeconds = this.patientForm.value.breakDuration;
-
     // Display the popup
     const userAcceptsBreak = confirm('Take a break?');
     // add the break dataService create call in this if block so create a break time in the database
     if (userAcceptsBreak) {
       // Set the breakRemaining to the break duration
-      this.breakRemaining = breakDurationInSeconds;
+      this.breakRemaining = this.patientForm.value.breakDurationSeconds;
       this.isSubmitButtonDisabled = true;
       this.breakTiming.push({
         isBreakAccepted: true,
         time: new Date()
       });
       // Continue with the task duration timer
-      this.startTimer();
+      // this.startTimer(); // removed because the timer will never stop
     } else {
       this.breakAccepted = false;
       this.breakTiming.push({
@@ -341,7 +351,13 @@ export class PatientRangeComponent implements OnInit {
     console.log('Settings Triggered!', this.patientForm);
 
     // Check if triggered by task duration
-    if (this.patientForm.get('taskDurationSeconds')?.dirty) {
+    if (
+      this.patientForm.get('taskDurationSeconds')?.dirty ||
+      this.patientForm.get('breakDurationSeconds')?.dirty ||
+      this.patientForm.get('breakCountInterval')?.dirty ||
+      this.patientForm.get('breakTimeIntervalSeconds')?.dirty ||
+      this.patientForm.get('breakIntervalType')?.dirty
+    ) {
       // Reset the timer based on the task duration
       this.timeRemaining = this.patientForm.value.taskDurationSeconds;
       clearInterval(this.timerInterval); // Stop the previous timer
@@ -363,6 +379,7 @@ export class PatientRangeComponent implements OnInit {
         })
         .subscribe((updatedParticipant) => {
           console.log('Update Participant Data: ', updatedParticipant);
+          alert('Participant settings updated successfully!');
         });
     }
   }
