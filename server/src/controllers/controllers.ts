@@ -1,5 +1,6 @@
 import * as database from '../models';
 import type { Request, Response } from 'express';
+import { SessionInputModel, SubmissionInputModel, UpdateParticipantInputModel } from '../types';
 
 export const getTables = async (req: Request, res: Response) => {
   try {
@@ -60,7 +61,7 @@ export const getAndCreateParticipantByParticipantNumber = async (req: Request, r
 
 export const createBreak = async (req: Request, res: Response) => {
   try {
-    const data = await database.insertBreak(req.body.session_id, req.body.has_accepted, req.body.duration);
+    const data = await database.insertBreak(req.body.session_id, req.body.has_accepted);
 
     const createdBreak = await database.findBreakById(data[0].insertId.toString());
     res.status(201).json(createdBreak);
@@ -72,13 +73,9 @@ export const createBreak = async (req: Request, res: Response) => {
 
 export const createSubmission = async (req: Request, res: Response) => {
   try {
-    const data = await database.insertSubmission(
-      req.body.session_id,
-      req.body.patient_id,
-      req.body.interpretation,
-      req.body.last_interaction,
-      req.body.is_valid
-    );
+    const params: SubmissionInputModel = { ...req.body };
+    const data = await database.insertSubmission(params);
+
     const createdSubmission = await database.findSubmissionById(data[0].insertId.toString());
     res.status(201).json(createdSubmission);
   } catch (err) {
@@ -88,8 +85,9 @@ export const createSubmission = async (req: Request, res: Response) => {
 };
 export const createSession = async (req: Request, res: Response) => {
   try {
-    const { participant_number, duration } = req.body;
-    const data = await database.insertSession(participant_number, duration);
+    const params: SessionInputModel = { ...req.body };
+    const data = await database.insertSession(params);
+
     const createdSession = await database.findSessionById(data[0].insertId.toString());
     res.status(201).json(createdSession);
   } catch (err) {
@@ -100,13 +98,9 @@ export const createSession = async (req: Request, res: Response) => {
 };
 export const updateParticipantSettings = async (req: Request, res: Response) => {
   try {
-    const data = await database.updateParticipantSettings(
-      req.body.task_duration,
-      req.body.break_duration,
-      req.body.break_count_interval,
-      req.body.break_time_interval,
-      req.body.participant_number
-    );
+    const params: UpdateParticipantInputModel = { ...req.body };
+    const data = await database.updateParticipantSettings(params);
+
     const updatedParticipant = await database.findParticipantByParticipantNumber(req.body.participant_number);
     res.status(201).json(updatedParticipant);
   } catch (err) {

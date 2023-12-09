@@ -2,6 +2,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { SessionService } from 'src/app/service/session.service';
+import { DataService } from 'src/app/service/data.service';
+import { Interpretation } from '../../../../../../../../server/src/types';
 
 import { saveAs } from 'file-saver';
 import * as Papa from 'papaparse';
@@ -24,21 +26,32 @@ export class PatientRangeComponent implements OnInit {
   breakRemaining: number = 0;
   allRecords: any[] = [];
   isShowTimer = false;
-  password = "researcher2023";
+  password = 'researcher2023';
   isSubmitButtonActive = false;
   breakAccepted: boolean = true; // Variable to store the break acceptance status
   breakTiming: any[] = [];
 
-
-  constructor(private fb: FormBuilder, private sessionService: SessionService) {}
+  constructor(private fb: FormBuilder, private sessionService: SessionService, private dataService: DataService) {}
 
   ngOnInit() {
+    // get data from session
+    const sessionSettings = this.sessionService.getSessionSettings();
+    const taskDuration = sessionSettings.taskDurationSeconds;
+    const breakDuration = sessionSettings.breakDurationSeconds;
+    const breakCountInterval = sessionSettings.breakCountInterval;
+    const breakTimeInterval = sessionSettings.breakTimeIntervalSeconds;
+    if (!taskDuration || !breakDuration || !breakCountInterval || !breakTimeInterval) {
+      alert('patient-range-init: Session data not found!! Unable to start timer!!');
+      return;
+    }
+    this.timeRemaining = taskDuration * 60;
+
     this.patientForm = this.fb.group({
       patientId: [''],
       interpretation: [],
       taskDuration: [45], // Default task duration in minutes
-      breakCount: [10],   // Default break count after 10 records
-      breakDuration: [10]  // Default break duration in seconds
+      breakCount: [10], // Default break count after 10 records
+      breakDuration: [10] // Default break duration in seconds
     });
   }
 
@@ -50,14 +63,74 @@ export class PatientRangeComponent implements OnInit {
     if (!this.timerInterval) {
       this.startTimer();
     }
+
+    const sessionId = this.sessionService.getSessionId();
+    if (!sessionId) {
+      console.error('Session ID not found!! Unable to submit!!');
+      return;
+    }
+
+    // get lastInteraction
+    let lastInteraction = 0;
+    if (this.allRecords.length >= 2) {
+      lastInteraction = this.getTimestampDifferenceInSeconds(
+        this.allRecords[this.allRecords.length - 2].timestamp,
+        new Date()
+      );
+    }
+
+    // send the submission to the server (dataService)
+    this.dataService
+      .createSubmission({
+        // things to add, given patient_id, and given_interpretation, if I'm not going to store the
+        // This is how the submission data should look like!!!!!!!!!
+        // given_patient_id
+        // entered_patient_id: this.patientForm.value.patientId,
+        // given_interpretation: this.patientForm.value.interpretation,
+        // entered_interpretation: this.isDataValid(),
+        // is_valid
+        // session_id
+        given_patient_id: this.data[this.randomNumber].patientId,
+        entered_patient_id: this.patientForm.value.patientId,
+        given_interpretation: this.isInCorrectRange() ? Interpretation['within range'] : Interpretation['out of range'],
+        entered_interpretation: this.patientForm.value.interpretation,
+        last_interaction: lastInteraction,
+        is_valid: this.isDataValid(),
+        session_id: sessionId
+      })
+      .subscribe((newSubmission) => {
+        console.log('Create Submission Data: ', {
+          ...newSubmission[0],
+          created_at: new Date(newSubmission[0].created_at)
+        });
+      });
   }
 
   showProgress() {
     // if((this.isShowProgressClicked === false) && this.isPasswordCorrect()) {
-      this.isShowProgressClicked = !this.isShowProgressClicked;
+    this.isShowProgressClicked = !this.isShowProgressClicked;
     // } else if (this.isShowProgressClicked === true) {
-      // this.isShowProgressClicked = !this.isShowProgressClicked;
+    // this.isShowProgressClicked = !this.isShowProgressClicked;
     // }
+  }
+
+  isInCorrectRange() {
+    let currentData = this.data[this.randomNumber];
+    let maleOrFemaleRange = currentData.sex === 'Male' ? currentData.maleRange : currentData.femaleRange;
+    let minValue = maleOrFemaleRange.split('to')[0];
+    let maxValue = maleOrFemaleRange.split('to')[1];
+    return currentData.hr > minValue && currentData.hr < maxValue ? 'within range' : 'not within range';
+  }
+  isDataValid() {
+    let currentData = this.data[this.randomNumber];
+
+    if (
+      currentData.patientId === this.patientForm.value.patientId &&
+      this.isInCorrectRange() === this.patientForm.value.interpretation
+    ) {
+      return true;
+    }
+    return false;
   }
 
   checkIsDataInRange() {
@@ -66,9 +139,11 @@ export class PatientRangeComponent implements OnInit {
     let minValue = maleOrFemaleRange.split('to')[0];
     let maxValue = maleOrFemaleRange.split('to')[1];
 
-    let isInCorrectRange = (currentData.hr > minValue && currentData.hr < maxValue) ? "withinRange" : "outOfRange";
-    if (currentData.patientId === this.patientForm.value.patientId &&
-        isInCorrectRange === this.patientForm.value.interpretation) {
+    let isInCorrectRange = currentData.hr > minValue && currentData.hr < maxValue ? 'within range' : 'not within range';
+    if (
+      currentData.patientId === this.patientForm.value.patientId &&
+      isInCorrectRange === this.patientForm.value.interpretation
+    ) {
       this.correctRecord += 1;
       this.totalRecord += 1;
     } else {
@@ -83,11 +158,14 @@ export class PatientRangeComponent implements OnInit {
       timestamp: new Date(),
       lastInteraction: 0
     };
-    let lastInteraction = 0
+    let lastInteraction = 0;
 
-    if(this.allRecords.length >= 1) {
-      lastInteraction = this.getTimestampDifferenceInSeconds(this.allRecords[this.allRecords.length - 1].timestamp, new Date())
-      record.lastInteraction = lastInteraction
+    if (this.allRecords.length >= 1) {
+      lastInteraction = this.getTimestampDifferenceInSeconds(
+        this.allRecords[this.allRecords.length - 1].timestamp,
+        new Date()
+      );
+      record.lastInteraction = lastInteraction;
     }
 
     this.allRecords.push(record);
@@ -97,19 +175,19 @@ export class PatientRangeComponent implements OnInit {
       this.showBreakPopup();
     }
 
-    this.patientForm.patchValue({
-      patientId: '',
-      interpretation: ''
-    });
+    // this.patientForm.patchValue({
+    //   patientId: '',
+    //   interpretation: ''
+    // });
   }
 
   getTimestampDifferenceInSeconds(start: Date, end: Date): number {
     const startTime = start.getTime();
     const endTime = end.getTime();
-  
+
     const timeDifferenceInMilliseconds = endTime - startTime;
     const timeDifferenceInSeconds = Math.floor(timeDifferenceInMilliseconds / 1000);
-  
+
     return timeDifferenceInSeconds;
   }
 
@@ -121,7 +199,8 @@ export class PatientRangeComponent implements OnInit {
       // this.isSubmitButtonActive = false;
     } else {
       // Otherwise, continue with the task duration timer
-      const taskDurationInSeconds = this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDuration * 60;
+      const taskDurationInSeconds =
+        this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDuration * 60;
 
       // Store the start time to consider the existing countdown time
       const startTime = Date.now() - (this.patientForm.value.taskDuration * 60 - this.timeRemaining) * 1000;
@@ -138,7 +217,7 @@ export class PatientRangeComponent implements OnInit {
           // Continue counting down the task duration
           this.timeRemaining = taskDurationInSeconds - elapsedTimeInSeconds;
           if (this.breakRemaining === 0) {
-            this.isSubmitButtonActive = false
+            this.isSubmitButtonActive = false;
           }
         } else {
           clearInterval(this.timerInterval);
@@ -151,16 +230,12 @@ export class PatientRangeComponent implements OnInit {
     }
   }
 
-
-
-
-
   showBreakPopup() {
     const breakDurationInSeconds = this.patientForm.value.breakDuration;
-    console.log(this.allRecords)
 
     // Display the popup
     const userAcceptsBreak = confirm('Take a break?');
+    // add the break dataService create call in this if block so create a break time in the database
     if (userAcceptsBreak) {
       // Set the breakRemaining to the break duration
       this.breakRemaining = breakDurationInSeconds;
@@ -168,7 +243,7 @@ export class PatientRangeComponent implements OnInit {
       this.breakTiming.push({
         isBreakAccepted: true,
         time: new Date()
-      })
+      });
       // Continue with the task duration timer
       this.startTimer();
     } else {
@@ -176,14 +251,33 @@ export class PatientRangeComponent implements OnInit {
       this.breakTiming.push({
         isBreakAccepted: false,
         time: new Date()
-      })
+      });
       console.log('Break declined by user');
     }
+
+    // check if session initialization failed!!
+    const sessionId = this.sessionService.getSessionId();
+    if (!sessionId) {
+      alert('Session ID not found!! Unable to create break!!');
+      return;
+    }
+    // send the break to the server (dataService)
+    this.dataService
+      .createBreak({
+        session_id: sessionId,
+        has_accepted: userAcceptsBreak
+      })
+      .subscribe((newBreak) => {
+        console.log('Create Break Data: ', {
+          ...newBreak[0],
+          created_at: new Date(newBreak[0].created_at)
+        });
+      });
   }
 
   triggerSettings() {
     // Implement logic for what to do when the settings trigger button is clicked
-    console.log("Settings Triggered!", this.patientForm);
+    console.log('Settings Triggered!', this.patientForm);
 
     // Check if triggered by task duration
     if (this.patientForm.get('taskDuration')?.dirty) {
@@ -192,12 +286,25 @@ export class PatientRangeComponent implements OnInit {
       this.timeRemaining = taskDurationInSeconds;
       clearInterval(this.timerInterval); // Stop the previous timer
       this.startTimer(); // Start the new timer
+
+      // update participant settings in the server
+      // this.dataService.updateParticipantSettings({})
     }
   }
 
-
+  downloadDataFromDatabase() {
+    const participantNumber = this.sessionService.getParticipantNumber();
+    if (!participantNumber) {
+      alert('Participant Number not found!! Unable to download data!!');
+      return;
+    }
+    this.dataService.getSubmissionsAndBreaksByParticipantNumber(participantNumber.toString()).subscribe((data) => {
+      console.log('get Submissions and break data from server: ', data);
+    });
+  }
   downloadRecords() {
-    console.log(this.timeRemaining, "time Remaining")
+    // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
+    console.log(this.timeRemaining, 'time Remaining');
     if (this.timeRemaining === 0) {
       // Create CSV data
       const csvData: any[] = [];
@@ -235,20 +342,24 @@ export class PatientRangeComponent implements OnInit {
       // Add patient records
       csvData.push(['Patient Records']);
       csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp', 'Last Interaction']);
-      this.allRecords.forEach(record => {
-        csvData.push([record.currentPatientDetails.patientId,
-           record.enteredInterpretation,
-           record.enteredResult, 
-           record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }), 
-           record.lastInteraction
-          ]);
+      this.allRecords.forEach((record) => {
+        csvData.push([
+          record.currentPatientDetails.patientId,
+          record.enteredInterpretation,
+          record.enteredResult,
+          record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }),
+          record.lastInteraction
+        ]);
       });
 
       csvData.push(['', '']);
       csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
-      this.breakTiming.forEach(eachTime => {
-        csvData.push([eachTime.isBreakAccepted, eachTime.time.toLocaleString('en-US', { timeZone: 'America/New_York' })])
-      })
+      this.breakTiming.forEach((eachTime) => {
+        csvData.push([
+          eachTime.isBreakAccepted,
+          eachTime.time.toLocaleString('en-US', { timeZone: 'America/New_York' })
+        ]);
+      });
 
       // Convert CSV data to a string
       const csvString = Papa.unparse(csvData, { header: false });
@@ -259,22 +370,20 @@ export class PatientRangeComponent implements OnInit {
       // Save the Blob as a CSV file
       saveAs(blob, 'patient_records.csv');
     } else {
-      alert("You can download the records after the session ends");
+      alert('You can download the records after the session ends');
     }
   }
 
-
   isTimerBlockClicked() {
-
-    if((this.isShowTimer === false) && this.isPasswordCorrect()) {
-      this.isShowTimer = !this.isShowTimer
+    if (this.isShowTimer === false && this.isPasswordCorrect()) {
+      this.isShowTimer = !this.isShowTimer;
     } else if (this.isShowTimer === true) {
-      this.isShowTimer = !this.isShowTimer
+      this.isShowTimer = !this.isShowTimer;
     }
   }
 
   isPasswordCorrect() {
-    const enteredPassword = prompt("Enter the password");
+    const enteredPassword = prompt('Enter the password');
 
     if (enteredPassword === this.password) {
       alert('Password is correct!');
@@ -284,6 +393,4 @@ export class PatientRangeComponent implements OnInit {
       return false;
     }
   }
-
-
 }

@@ -32,7 +32,8 @@ export class PatientSessionComponent implements OnInit {
   startSession() {
     if (this.participantForm.valid) {
       // You can access the entered participant number using this.participantForm.value.participantNumber
-      this.router.navigate(['/data-entry-task']);
+      // this.router.navigate(['/data-entry-task']);
+
       // save the session participant id into the session service
       this.sessionService.setParticipantNumber(this.participantForm.value.participantNumber);
       // get the participant data from the server, so we can load the participant settings for task time, break time, etc.
@@ -40,24 +41,41 @@ export class PatientSessionComponent implements OnInit {
         .getParticipantByParticipantNumber(this.participantForm.value.participantNumber)
         .subscribe((participantData) => {
           console.log('participantData: ', participantData);
+          // set the session settings
+          this.sessionService.setSessionSettings({
+            breakCountInterval: participantData[0].break_count_interval,
+            breakTimeIntervalSeconds: participantData[0].break_time_interval_seconds,
+            taskDurationSeconds: participantData[0].task_duration_seconds,
+            breakDurationSeconds: participantData[0].break_duration_seconds,
+            breakIntervalType: participantData[0].break_interval_type
+          });
 
           // create a new session
           this.dataService
             .createSession({
               participant_number: this.participantForm.value.participantNumber,
-              duration: participantData[0].task_duration
+              task_duration_seconds: participantData[0].task_duration_seconds,
+              break_duration_seconds: participantData[0].break_duration_seconds,
+              break_count_interval: participantData[0].break_count_interval,
+              break_time_interval_seconds: participantData[0].break_time_interval_seconds,
+              break_interval_type: participantData[0].break_interval_type
             })
             .subscribe((newSession) => {
-              console.log('newSession: ', {
-                ...newSession,
+              console.log('Create Session Data: ', {
+                ...newSession[0],
                 created_at: new Date(newSession[0].created_at)
               });
               // save the session id into the session service
               // so I can refer back when I create a new submission or break
+              this.sessionService.setSessionId(newSession[0].id);
+              // navigate when the session is created
+              this.router.navigate(['/data-entry-task']);
             });
         });
     } else {
-      alert('Please double check the participant number and try again. it should be three digit between 100 to 400');
+      alert(
+        'Please double check the participant number and try again. it should be three digit between 100 to 999 inclusive.'
+      );
     }
   }
 }
