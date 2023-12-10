@@ -116,17 +116,9 @@ export class PatientRangeComponent implements OnInit {
     // send the submission to the server (dataService)
     this.dataService
       .createSubmission({
-        // things to add, given patient_id, and given_interpretation, if I'm not going to store the
-        // This is how the submission data should look like!!!!!!!!!
-        // given_patient_id
-        // entered_patient_id: this.patientForm.value.patientId,
-        // given_interpretation: this.patientForm.value.interpretation,
-        // entered_interpretation: this.isDataValid(),
-        // is_valid
-        // session_id
         given_patient_id: this.data[this.randomNumber].patientId,
         entered_patient_id: this.patientForm.value.patientId,
-        given_interpretation: this.isInCorrectRange() ? Interpretation['within range'] : Interpretation['out of range'],
+        given_interpretation: this.isInCorrectRange(),
         entered_interpretation: this.patientForm.value.interpretation,
         last_interaction: lastInteraction,
         is_valid: this.isDataValid(),
@@ -159,7 +151,9 @@ export class PatientRangeComponent implements OnInit {
     let maleOrFemaleRange = currentData.sex === 'Male' ? currentData.maleRange : currentData.femaleRange;
     let minValue = maleOrFemaleRange.split('to')[0];
     let maxValue = maleOrFemaleRange.split('to')[1];
-    return currentData.hr > minValue && currentData.hr < maxValue ? 'within range' : 'not within range';
+    return currentData.hr > minValue && currentData.hr < maxValue
+      ? Interpretation['within range']
+      : Interpretation['out of range'];
   }
   isDataValid() {
     let currentData = this.data[this.randomNumber];
@@ -392,6 +386,59 @@ export class PatientRangeComponent implements OnInit {
     }
     this.dataService.getSubmissionsAndBreaksByParticipantNumber(participantNumber.toString()).subscribe((data) => {
       console.log('get Submissions and break data from server: ', data);
+
+      // Create CSV data
+      const csvData: any[] = [];
+      csvData.push(['', '']); // Empty row for separation
+      csvData.push(['', 'Submissions By Participant Number']);
+      csvData.push([
+        'id',
+        'session_id',
+        'created_at',
+        'given_interpretation',
+        'entered_interpretation',
+        'given_patient_id',
+        'entered_patient_id',
+        'is_valid',
+        'last_interaction'
+      ]); // Header
+
+      // add submission data
+
+      const submissionData = data[0];
+      submissionData.forEach((s: any) => {
+        let createdAt = new Date(s.created_at);
+        createdAt.setHours(createdAt.getHours() + 2);
+        csvData.push([
+          s.id,
+          s.session_id,
+          createdAt.toString(),
+          s.given_interpretation,
+          s.entered_interpretation,
+          s.given_patient_id,
+          s.entered_patient_id,
+          s.is_valid,
+          s.last_interaction
+        ]);
+      });
+      csvData.push(['', '']); // Empty row for separation
+      csvData.push(['', 'Breaks By Participant Number']); // Empty row for separation
+      csvData.push(['id', 'session_id', 'created_at', 'has_accepted', 'duration']); // Break Headers
+      const breakData = data[1];
+      breakData.forEach((item: any) => {
+        let createdAt = new Date(item.created_at);
+        createdAt.setHours(createdAt.getHours() + 2);
+        csvData.push([item.id, item.session_id, createdAt.toString(), item.has_accepted, item.break_duration_seconds]);
+      });
+
+      // Convert CSV data to a string
+      const csvString = Papa.unparse(csvData, { header: false });
+
+      // Convert the string to a Blob
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
+
+      // Save the Blob as a CSV file
+      saveAs(blob, 'patient_records_from_database.csv');
     });
   }
   downloadRecords() {

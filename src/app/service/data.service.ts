@@ -14,8 +14,8 @@ import {
   providedIn: 'root'
 })
 export class DataService {
-  // private apiUrl = 'https://medtask.onrender.com/api';
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://medtask.onrender.com/api';
+  // private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 
