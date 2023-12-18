@@ -1,0 +1,62 @@
+<div class="admin-panel-wrapper">
+  <h2>Medtask Admin Panel</h2>
+  <h3 style="margin-bottom: 2rem">Update the settings of a specific participant user!</h3>
+  <hr />
+  <form *ngIf="isPasswordValid" [formGroup]="passwordForm" (ngSubmit)="checkPassword()">
+    <label for="pasword">Please Enter the Password to Update Participant Settings </label>
+    <input type="text" id="password" formControlName="password" />
+    <br />
+    <button type="submit">Open Settings</button>
+  </form>
+  <div class="update-participant-settings-container" *ngIf="!isPasswordValid">
+    <form [formGroup]="adminForm">
+      <div class="form-group">
+        <label for="participant-number">Participant Number</label>
+        <div class="input-with-button">
+          <input type="number" id="participant-number" formControlName="participantNumber" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="task-duration">Task Duration (seconds)</label>
+        <div class="input-with-button">
+          <input type="number" id="task-duration" formControlName="taskDurationSeconds" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="break-duration">Break Duration (seconds)</label>
+        <div class="input-with-button">
+          <input type="number" id="break-duration" formControlName="breakDurationSeconds" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="break-time-interval">Break After X Seconds</label>
+        <div class="input-with-button">
+          <input type="number" id="break-time-interval" formControlName="breakTimeIntervalSeconds" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="break-count-interval">Break After X Records</label>
+        <div class="input-with-button">
+          <input type="number" id="break-count-interval" formControlName="breakCountInterval" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Break Interval Type:</label>
+        <div class="radio-group">
+          <label> <input type="radio" formControlName="breakIntervalType" value="count" /> Count </label>
+          <label> <input type="radio" formControlName="breakIntervalType" value="time" /> Time </label>
+        </div>
+      </div>
+    </form>
+
+    <div class="admin-buttons-wrapper">
+      <button type="button" (click)="downloadDataFromDatabase()">Download Records From Database</button>
+      <button type="button" (click)="fetchParticipantSettings()">Fetch Participant Settings</button>
+      <button type="button" [disabled]="!this.isParticipantValid" (click)="updateParticipantSettings()">
+        Update Participant Settings
+      </button>
+    </div>
+  </div>
+</div>

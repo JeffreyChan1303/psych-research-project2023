@@ -14,6 +14,7 @@ import { PatientMaleFemaleComponent } from './component/medical-data-entry-task/
 import { PatientRangeComponent } from './component/medical-data-entry-task/patient-interpretation/patient-interpretation/patient-range/patient-range/patient-range.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormatTimePipe } from './service/formate-time.pipe';
+import { AdminPanelComponent } from './component/admin-panel/admin-panel.component';
 
 @NgModule({
   declarations: [
@@ -24,17 +25,12 @@ import { FormatTimePipe } from './service/formate-time.pipe';
     PatientInterpretationComponent,
     PatientMaleFemaleComponent,
     PatientRangeComponent,
+    AdminPanelComponent,
     FormatTimePipe
   ],
-  imports: [
-    InputNumberModule,
-    BrowserModule,
-    AppRoutingModule,
-    ReactiveFormsModule,
-    HttpClientModule
-  ],
+  imports: [InputNumberModule, BrowserModule, AppRoutingModule, ReactiveFormsModule, HttpClientModule],
   providers: [],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
   // schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule { }
+export class AppModule {}
