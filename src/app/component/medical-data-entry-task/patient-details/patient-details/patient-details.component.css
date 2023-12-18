@@ -40,6 +40,11 @@ label {
 input {
   padding: 8px;
   width: 60%; /* Adjust input width for side-by-side on larger screens */
+  background-color: #eee;
+  border: 1px solid #ccc; /* Add a border for better visibility */
+  border-radius: 4px;
+  cursor: default;
+  font-weight: 600;
 }
 
 /* Media query for smaller screens */
