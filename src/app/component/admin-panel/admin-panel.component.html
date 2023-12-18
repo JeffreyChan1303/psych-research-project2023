@@ -2,13 +2,13 @@
   <h2>Medtask Admin Panel</h2>
   <h3 style="margin-bottom: 2rem">Update the settings of a specific participant user!</h3>
   <hr />
-  <form *ngIf="isPasswordValid" [formGroup]="passwordForm" (ngSubmit)="checkPassword()">
+  <form *ngIf="!isPasswordValid" [formGroup]="passwordForm" (ngSubmit)="checkPassword()">
     <label for="pasword">Please Enter the Password to Update Participant Settings </label>
     <input type="text" id="password" formControlName="password" />
     <br />
     <button type="submit">Open Settings</button>
   </form>
-  <div class="update-participant-settings-container" *ngIf="!isPasswordValid">
+  <div class="update-participant-settings-container" *ngIf="isPasswordValid">
     <form [formGroup]="adminForm">
       <div class="form-group">
         <label for="participant-number">Participant Number</label>
@@ -52,8 +52,10 @@
     </form>
 
     <div class="admin-buttons-wrapper">
-      <button type="button" (click)="downloadDataFromDatabase()">Download Records From Database</button>
       <button type="button" (click)="fetchParticipantSettings()">Fetch Participant Settings</button>
+      <button type="button" [disabled]="!this.isParticipantValid" (click)="downloadDataFromDatabase()">
+        Download Records From Database
+      </button>
       <button type="button" [disabled]="!this.isParticipantValid" (click)="updateParticipantSettings()">
         Update Participant Settings
       </button>
