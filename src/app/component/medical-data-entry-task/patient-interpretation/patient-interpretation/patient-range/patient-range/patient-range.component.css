@@ -145,3 +145,7 @@ button[disabled]:hover {
   color: black;
   cursor: not-allowed; /* Optional: Change cursor to indicate it's not clickable */
 }
+
+.card-content p:only-child {
+  margin: 0;
+}

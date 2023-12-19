@@ -71,8 +71,8 @@
     <!-- <div *ngIf="isShowProgressClicked" class="card"> -->
     <div class="card">
       <div class="card-content">
-        <p class="card-total-record">Total Record: {{ totalRecord }}</p>
-        <p class="card-correct-record">Correct Record: {{ correctRecord }}</p>
+        <p *ngIf="isShowStatistics" class="card-total-record">Total Record: {{ totalRecord }}</p>
+        <p *ngIf="isShowStatistics" class="card-correct-record">Correct Record: {{ correctRecord }}</p>
         <p class="card-timer">Timer: {{ timeRemaining | formatTime }}</p>
         <p *ngIf="breakRemaining >= 1" class="card-break">Break Timer: {{ breakRemaining | formatTime }}</p>
         <!-- Your additional progress content goes here -->
@@ -84,14 +84,12 @@
       <button type="button" class="download" (click)="downloadRecords()">Download Records</button>
     </p>
     <p>
-      <button type="button" class="download" (click)="downloadDataFromDatabase()">
-        Download Records From Database
-      </button>
+      <button type="button" (click)="toggleShowStatistics()">Show Records</button>
     </p>
 
-    <p>
+    <!-- <p>
       <button type="button" (click)="isTimerBlockClicked()">Show timer settings</button>
-    </p>
+    </p> -->
     <hr *ngIf="isShowTimer" />
     <p *ngIf="isShowTimer">
       <button type="button" (click)="triggerSettings()">Save Participant Settings</button>

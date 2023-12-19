@@ -41,6 +41,7 @@ export class PatientRangeComponent implements OnInit {
         breakIntervalType: string;
       }
     | undefined;
+  isShowStatistics: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -296,6 +297,9 @@ export class PatientRangeComponent implements OnInit {
     }
     console.log(this.timeRemaining);
   }
+  toggleShowStatistics() {
+    this.isShowStatistics = !this.isShowStatistics;
+  }
 
   showBreakPopup() {
     // Display the popup
@@ -378,69 +382,6 @@ export class PatientRangeComponent implements OnInit {
     }
   }
 
-  downloadDataFromDatabase() {
-    const participantNumber = this.sessionService.getParticipantNumber();
-    if (!participantNumber) {
-      alert('Participant Number not found!! Unable to download data!!');
-      return;
-    }
-    this.dataService.getSubmissionsAndBreaksByParticipantNumber(participantNumber.toString()).subscribe((data) => {
-      console.log('get Submissions and break data from server: ', data);
-
-      // Create CSV data
-      const csvData: any[] = [];
-      csvData.push(['', '']); // Empty row for separation
-      csvData.push(['', 'Submissions By Participant Number']);
-      csvData.push([
-        'id',
-        'session_id',
-        'created_at',
-        'given_interpretation',
-        'entered_interpretation',
-        'given_patient_id',
-        'entered_patient_id',
-        'is_valid',
-        'last_interaction'
-      ]); // Header
-
-      // add submission data
-
-      const submissionData = data[0];
-      submissionData.forEach((s: any) => {
-        let createdAt = new Date(s.created_at);
-        createdAt.setHours(createdAt.getHours() + 2);
-        csvData.push([
-          s.id,
-          s.session_id,
-          createdAt.toString(),
-          s.given_interpretation,
-          s.entered_interpretation,
-          s.given_patient_id,
-          s.entered_patient_id,
-          s.is_valid,
-          s.last_interaction
-        ]);
-      });
-      csvData.push(['', '']); // Empty row for separation
-      csvData.push(['', 'Breaks By Participant Number']); // Empty row for separation
-      csvData.push(['id', 'session_id', 'created_at', 'has_accepted', 'duration']); // Break Headers
-      const breakData = data[1];
-      breakData.forEach((item: any) => {
-        let createdAt = new Date(item.created_at);
-        createdAt.setHours(createdAt.getHours() + 2);
-        csvData.push([item.id, item.session_id, createdAt.toString(), item.has_accepted, item.break_duration_seconds]);
-      });
-
-      // Convert CSV data to a string
-      const csvString = Papa.unparse(csvData, { header: false });
-
-      // Convert the string to a Blob
-      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
-
-      // Save the Blob as a CSV file
-      saveAs(blob, 'patient_records_from_database.csv');
-    });
-  }
   downloadRecords() {
     // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
     console.log(this.timeRemaining, 'time Remaining');
