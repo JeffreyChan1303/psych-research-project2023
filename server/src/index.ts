@@ -22,7 +22,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
 
 // create cron job to wake the server every 14 minutes
 console.log(new Date().toLocaleString());
-cron.schedule('*/10 * * * *', () => {
+cron.schedule('*/5 * * * *', () => {
   console.log('running a task every 10 minutes', new Date().toLocaleString(), '\n');
   const exec = require('child_process').exec;
   exec(`curl ${process.env.SELF_PING_URL}`, function (err: any, stdout: any, stderr: any) {
