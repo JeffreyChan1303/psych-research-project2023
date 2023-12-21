@@ -63,7 +63,7 @@ export class AdminPanelComponent implements OnInit {
       // Create CSV data
       const csvData: any[] = [];
       csvData.push(['', '']); // Empty row for separation
-      csvData.push(['', 'Submissions By Participant Number']);
+      csvData.push(['', 'Submissions']);
       csvData.push([
         'id',
         'session_id',
@@ -73,35 +73,39 @@ export class AdminPanelComponent implements OnInit {
         'given_patient_id',
         'entered_patient_id',
         'is_valid',
-        'last_interaction'
+        'last_interaction (seconds)'
       ]); // Header
 
       // add submission data
 
       const submissionData = data[0];
-      submissionData.forEach((s: any) => {
-        let createdAt = new Date(s.created_at);
-        createdAt.setHours(createdAt.getHours() + 2);
+      submissionData.forEach((submission: any) => {
+        const formattedCreatedAt = this.formatTimestamp(submission.created_at);
         csvData.push([
-          s.id,
-          s.session_id,
-          createdAt.toString(),
-          s.given_interpretation,
-          s.entered_interpretation,
-          s.given_patient_id,
-          s.entered_patient_id,
-          s.is_valid,
-          s.last_interaction
+          submission.id,
+          submission.session_id,
+          formattedCreatedAt,
+          submission.given_interpretation,
+          submission.entered_interpretation,
+          submission.given_patient_id,
+          submission.entered_patient_id,
+          submission.is_valid ? 'true' : 'false',
+          `${submission.last_interaction}`
         ]);
       });
       csvData.push(['', '']); // Empty row for separation
-      csvData.push(['', 'Breaks By Participant Number']); // Empty row for separation
+      csvData.push(['', 'Breaks']); // Empty row for separation
       csvData.push(['id', 'session_id', 'created_at', 'has_accepted', 'duration']); // Break Headers
       const breakData = data[1];
-      breakData.forEach((item: any) => {
-        let createdAt = new Date(item.created_at);
-        createdAt.setHours(createdAt.getHours() + 2);
-        csvData.push([item.id, item.session_id, createdAt.toString(), item.has_accepted, item.break_duration_seconds]);
+      breakData.forEach((breakEntry: any) => {
+        let formattedCreatedAt = this.formatTimestamp(breakEntry.created_at);
+        csvData.push([
+          breakEntry.id,
+          breakEntry.session_id,
+          formattedCreatedAt,
+          breakEntry.has_accepted,
+          breakEntry.break_duration_seconds
+        ]);
       });
 
       // Convert CSV data to a string
@@ -154,8 +158,7 @@ export class AdminPanelComponent implements OnInit {
       this.adminForm.get('breakDurationSeconds')?.dirty ||
       this.adminForm.get('breakCountInterval')?.dirty ||
       this.adminForm.get('breakTimeIntervalSeconds')?.dirty ||
-      this.adminForm.get('breakIntervalType')?.dirty ||
-      this.adminForm.get('participantNumber')?.dirty
+      this.adminForm.get('breakIntervalType')?.dirty
     ) {
       // check the api error code to see if the participant number entered is valid or not
 
@@ -172,7 +175,23 @@ export class AdminPanelComponent implements OnInit {
         .subscribe((updatedParticipant) => {
           console.log('Update Participant Data: ', updatedParticipant);
           alert('Participant settings updated successfully!');
+          // remove items from the form
+          this.adminForm.reset();
         });
+    } else {
+      alert('No changes detected!');
     }
+  }
+  formatTimestamp(timestamp: string) {
+    let createdAt = new Date(timestamp);
+    createdAt.setHours(createdAt.getHours() + 7); // convert to local time
+    const formattedCreatedAt = `${createdAt.toDateString()} ${createdAt
+      .getHours()
+      .toString()
+      .padStart(2, '0')}:${createdAt.getMinutes().toString().padStart(2, '0')}:${createdAt
+      .getSeconds()
+      .toString()
+      .padStart(2, '0')}`;
+    return formattedCreatedAt;
   }
 }

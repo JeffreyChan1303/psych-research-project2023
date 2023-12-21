@@ -175,10 +175,7 @@ export class PatientRangeComponent implements OnInit {
     let maxValue = maleOrFemaleRange.split('to')[1];
 
     let isInCorrectRange = currentData.hr > minValue && currentData.hr < maxValue ? 'within range' : 'not within range';
-    if (
-      currentData.patientId === this.patientForm.value.patientId &&
-      isInCorrectRange === this.patientForm.value.interpretation
-    ) {
+    if (this.isDataValid()) {
       this.correctRecord += 1;
       this.totalRecord += 1;
     } else {
