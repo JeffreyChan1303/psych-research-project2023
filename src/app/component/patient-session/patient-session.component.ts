@@ -21,6 +21,11 @@ export class PatientSessionComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
+
+    // pings the server on startup to wake it up
+    this.dataService.getParticipantByParticipantNumber('123').subscribe((participant) => {
+      console.log('ping server on startup: ', participant);
+    });
   }
 
   initForm() {

@@ -19,6 +19,11 @@ export class AdminPanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
+
+    // pings the server on startup to wake it up
+    this.dataService.getParticipantByParticipantNumber('123').subscribe((participant) => {
+      console.log('ping server on startup: ', participant);
+    });
   }
   initForms() {
     this.passwordForm = this.formBuilder.group({
