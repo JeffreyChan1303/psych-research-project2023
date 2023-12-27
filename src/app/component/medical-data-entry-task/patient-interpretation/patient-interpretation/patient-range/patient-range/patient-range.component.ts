@@ -160,7 +160,7 @@ export class PatientRangeComponent implements OnInit {
     let currentData = this.data[this.randomNumber];
 
     if (
-      currentData.patientId === this.patientForm.value.patientId &&
+      currentData.patientId.toLowerCase() === this.patientForm.value.patientId.toLowerCase() &&
       this.isInCorrectRange() === this.patientForm.value.interpretation
     ) {
       return true;
@@ -246,7 +246,7 @@ export class PatientRangeComponent implements OnInit {
         timeSpent++;
         this.timeRemaining--;
         this.isSubmitButtonDisabled = true;
-        alert('This session has ended. Refresh the page to start a new session.');
+        alert('You have completed this session. Please download your records and send to your researcher.');
         clearInterval(this.timerInterval);
       }
     }, 1000);
