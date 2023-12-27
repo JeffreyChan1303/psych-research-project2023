@@ -119,7 +119,7 @@ export class PatientRangeComponent implements OnInit {
       .createSubmission({
         given_patient_id: this.data[this.randomNumber].patientId,
         entered_patient_id: this.patientForm.value.patientId,
-        given_interpretation: this.isInCorrectRange(),
+        given_interpretation: this.getPatientExpectedRange(),
         entered_interpretation: this.patientForm.value.interpretation,
         last_interaction: lastInteraction,
         is_valid: this.isDataValid(),
@@ -140,14 +140,10 @@ export class PatientRangeComponent implements OnInit {
   }
 
   showProgress() {
-    // if((this.isShowProgressClicked === false) && this.isPasswordCorrect()) {
     this.isShowProgressClicked = !this.isShowProgressClicked;
-    // } else if (this.isShowProgressClicked === true) {
-    // this.isShowProgressClicked = !this.isShowProgressClicked;
-    // }
   }
 
-  isInCorrectRange() {
+  getPatientExpectedRange() {
     let currentData = this.data[this.randomNumber];
     let maleOrFemaleRange = currentData.sex === 'Male' ? currentData.maleRange : currentData.femaleRange;
     let minValue = maleOrFemaleRange.split('to')[0];
@@ -156,12 +152,14 @@ export class PatientRangeComponent implements OnInit {
       ? Interpretation['within range']
       : Interpretation['out of range'];
   }
+  compareStrings(a: string, b: string) {
+    return a.toLowerCase() === b.toLowerCase();
+  }
   isDataValid() {
     let currentData = this.data[this.randomNumber];
-
     if (
-      currentData.patientId.toLowerCase() === this.patientForm.value.patientId.toLowerCase() &&
-      this.isInCorrectRange() === this.patientForm.value.interpretation
+      this.compareStrings(currentData.patientId, this.patientForm.value.patientId) &&
+      this.getPatientExpectedRange() === this.patientForm.value.interpretation
     ) {
       return true;
     }
@@ -185,8 +183,9 @@ export class PatientRangeComponent implements OnInit {
     const record = {
       currentPatientDetails: this.data[this.randomNumber],
       enteredPatientId: this.patientForm.value.patientId,
+      isPatientIdValid: this.compareStrings(currentData.patientId, this.patientForm.value.patientId),
       enteredInterpretation: this.patientForm.value.interpretation,
-      enteredResult: isInCorrectRange,
+      isInterpretationValid: this.patientForm.value.interpretation === this.getPatientExpectedRange(),
       timestamp: new Date(),
       lastInteraction: 0
     };
@@ -252,48 +251,6 @@ export class PatientRangeComponent implements OnInit {
     }, 1000);
   }
 
-  originalStartTimer() {
-    if (this.timeRemaining === 0) {
-      this.isSubmitButtonDisabled = false;
-    }
-    // Check if there is remaining break time
-    if (this.breakRemaining > 0) {
-      // If there is, decrease breakRemaining
-      this.breakRemaining--;
-      // this.isSubmitButtonActive = false;
-    } else {
-      // Otherwise, continue with the task duration timer
-      const taskDurationInSeconds =
-        this.timeRemaining > 0 ? this.timeRemaining : this.patientForm.value.taskDurationSeconds;
-
-      // Store the start time to consider the existing countdown time
-      const startTime = Date.now() - (this.patientForm.value.taskDurationSeconds - this.timeRemaining) * 1000;
-
-      // Store the interval ID
-      this.timerInterval = setInterval(() => {
-        const currentTime = Date.now();
-        const elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
-
-        if (this.breakRemaining > 0) {
-          // If a break is needed, set breakRemaining to the break duration
-          this.breakRemaining--;
-        } else if (this.timeRemaining > 0) {
-          // Continue counting down the task duration
-          this.timeRemaining = taskDurationInSeconds - elapsedTimeInSeconds;
-          if (this.breakRemaining === 0) {
-            this.isSubmitButtonDisabled = false;
-          }
-        } else {
-          clearInterval(this.timerInterval);
-
-          // If a break is needed, set breakRemaining to the break duration
-          this.breakRemaining = this.patientForm.value.breakDurationSeconds;
-          this.startTimer(); // Start the new timer (for the break)
-        }
-      }, 1000); // Update every second
-    }
-    console.log(this.timeRemaining);
-  }
   toggleShowStatistics() {
     this.isShowStatistics = !this.isShowStatistics;
   }
@@ -382,73 +339,81 @@ export class PatientRangeComponent implements OnInit {
   downloadRecords() {
     // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
     console.log(this.timeRemaining, 'time Remaining');
-    if (this.timeRemaining === 0) {
-      // Create CSV data
-      const csvData: any[] = [];
-      csvData.push(['Field', 'Value']); // Header
-
-      // Add user inputs
-      csvData.push(['Participant ID', this.sessionService.getParticipantNumber()]);
-      csvData.push(['Interpretation', this.patientForm.value.interpretation]);
-      csvData.push(['', '']); // Empty row for separation
-
-      // Add summary
-      csvData.push(['Total Record', this.totalRecord]);
-      csvData.push(['Correct Record', this.correctRecord]);
-      csvData.push(['Time Remaining', this.timeRemaining]);
-      csvData.push(['', '']); // Empty row for separation
-
-      // Add current patient details if available
-      const currentData = this.data[this.randomNumber]?.currentPatientDetails;
-      if (currentData) {
-        csvData.push(['Current Patient Details']);
-        // Flatten the nested structure
-        Object.entries(currentData).forEach(([key, value]: [string, any]) => {
-          if (typeof value === 'object') {
-            // Flatten nested object
-            Object.entries(value).forEach(([nestedKey, nestedValue]: [string, any]) => {
-              csvData.push([`${key} - ${nestedKey}`, nestedValue.toString()]);
-            });
-          } else {
-            csvData.push([key, value.toString()]);
-          }
-        });
-        csvData.push(['', '']); // Empty row for separation
-      }
-
-      // Add patient records
-      csvData.push(['Patient Records']);
-      csvData.push(['Patient ID', 'Interpretation', 'Result', 'Timestamp', 'Last Interaction']);
-      this.allRecords.forEach((record) => {
-        csvData.push([
-          record.currentPatientDetails.patientId,
-          record.enteredInterpretation,
-          record.enteredResult,
-          record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }),
-          record.lastInteraction
-        ]);
-      });
-
-      csvData.push(['', '']);
-      csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
-      this.breakTiming.forEach((eachTime) => {
-        csvData.push([
-          eachTime.isBreakAccepted,
-          eachTime.time.toLocaleString('en-US', { timeZone: 'America/New_York' })
-        ]);
-      });
-
-      // Convert CSV data to a string
-      const csvString = Papa.unparse(csvData, { header: false });
-
-      // Convert the string to a Blob
-      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
-
-      // Save the Blob as a CSV file
-      saveAs(blob, 'patient_records.csv');
-    } else {
+    if (this.timeRemaining > 0) {
       alert('You can download the records after the session ends');
+      return;
     }
+
+    // Create CSV data
+    const csvData: any[] = [];
+    csvData.push(['Field', 'Value']); // Header
+
+    // Add user inputs
+    csvData.push(['Participant ID', this.sessionService.getParticipantNumber()]);
+    csvData.push(['Session Id', this.sessionService.getSessionId()]);
+    csvData.push(['', '']); // Empty row for separation
+
+    // Add summary
+    csvData.push(['Total Record', this.totalRecord]);
+    csvData.push(['Correct Record', this.correctRecord]);
+    csvData.push(['Time Remaining', this.timeRemaining]);
+    csvData.push(['', '']); // Empty row for separation
+
+    // Add current patient details if available
+    const currentData = this.data[this.randomNumber]?.currentPatientDetails;
+    if (currentData) {
+      csvData.push(['Current Patient Details']);
+      // Flatten the nested structure
+      Object.entries(currentData).forEach(([key, value]: [string, any]) => {
+        if (typeof value === 'object') {
+          // Flatten nested object
+          Object.entries(value).forEach(([nestedKey, nestedValue]: [string, any]) => {
+            csvData.push([`${key} - ${nestedKey}`, nestedValue.toString()]);
+          });
+        } else {
+          csvData.push([key, value.toString()]);
+        }
+      });
+      csvData.push(['', '']); // Empty row for separation
+    }
+
+    // Add patient records
+    csvData.push(['Patient Records']);
+    csvData.push([
+      'Given Patient ID',
+      'Entered Patient Id',
+      'Is Patient Id Valid',
+      'Entered Interpretation',
+      'Is Interpretation Valid',
+      'Timestamp',
+      'Last Interaction'
+    ]);
+    this.allRecords.forEach((record) => {
+      csvData.push([
+        record.currentPatientDetails.patientId,
+        record.enteredPatientId,
+        record.isPatientIdValid,
+        record.enteredInterpretation,
+        record.isInterpretationValid,
+        record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }),
+        record.lastInteraction
+      ]);
+    });
+
+    csvData.push(['', '']);
+    csvData.push(['breakAccepted', 'TimeAcceptedOrDeclined']);
+    this.breakTiming.forEach((eachTime) => {
+      csvData.push([eachTime.isBreakAccepted, eachTime.time.toLocaleString('en-US', { timeZone: 'America/New_York' })]);
+    });
+
+    // Convert CSV data to a string
+    const csvString = Papa.unparse(csvData, { header: false });
+
+    // Convert the string to a Blob
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
+
+    // Save the Blob as a CSV file
+    saveAs(blob, 'patient_records.csv');
   }
 
   isTimerBlockClicked() {
