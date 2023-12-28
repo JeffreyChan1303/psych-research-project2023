@@ -44,6 +44,7 @@ export interface SessionInputModel {
   break_count_interval: number;
   break_time_interval_seconds: number;
   break_interval_type: BreakIntervalType;
+  show_progress_toggle: boolean;
 }
 
 export interface UpdateParticipantInputModel {
@@ -53,6 +54,8 @@ export interface UpdateParticipantInputModel {
   break_count_interval: number;
   break_time_interval_seconds: number;
   break_interval_type: BreakIntervalType;
+  session_timeout_seconds: number;
+  show_progress_toggle: boolean;
 }
 
 export interface BreakInputModel {

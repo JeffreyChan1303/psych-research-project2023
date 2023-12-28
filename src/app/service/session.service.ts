@@ -14,6 +14,8 @@ export class SessionService {
         breakCountInterval: number;
         breakTimeIntervalSeconds: number;
         breakIntervalType: string;
+        sessionTimeoutSeconds: number;
+        showProgressToggle: boolean;
       }
     | undefined;
 
@@ -43,6 +45,8 @@ export class SessionService {
     breakCountInterval: number;
     breakTimeIntervalSeconds: number;
     breakIntervalType: string;
+    sessionTimeoutSeconds: number;
+    showProgressToggle: boolean;
   }): void {
     this.sessionSettings = sessionSettings;
   }

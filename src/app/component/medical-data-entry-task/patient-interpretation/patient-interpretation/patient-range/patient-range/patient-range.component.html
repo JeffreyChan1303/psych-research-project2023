@@ -84,16 +84,18 @@
       <button type="button" class="download" (click)="downloadRecords()">Download Records</button>
     </p>
     <p>
-      <button type="button" (click)="toggleShowStatistics()">Show Records</button>
+      <button type="button" [disabled]="!this.sessionData?.showProgressToggle" (click)="toggleShowStatistics()">
+        Show Records
+      </button>
     </p>
 
     <!-- <p>
       <button type="button" (click)="isTimerBlockClicked()">Show timer settings</button>
     </p> -->
     <hr *ngIf="isShowTimer" />
-    <p *ngIf="isShowTimer">
+    <!-- <p *ngIf="isShowTimer">
       <button type="button" (click)="triggerSettings()">Save Participant Settings</button>
-    </p>
+    </p> -->
 
     <p></p>
   </div>

@@ -51,7 +51,9 @@ export class PatientSessionComponent implements OnInit {
             breakTimeIntervalSeconds: participantData[0].break_time_interval_seconds,
             taskDurationSeconds: participantData[0].task_duration_seconds,
             breakDurationSeconds: participantData[0].break_duration_seconds,
-            breakIntervalType: participantData[0].break_interval_type
+            breakIntervalType: participantData[0].break_interval_type,
+            sessionTimeoutSeconds: participantData[0].session_timeout_seconds,
+            showProgressToggle: participantData[0].show_progress_toggle
           });
 
           // create a new session
@@ -62,7 +64,8 @@ export class PatientSessionComponent implements OnInit {
               break_duration_seconds: participantData[0].break_duration_seconds,
               break_count_interval: participantData[0].break_count_interval,
               break_time_interval_seconds: participantData[0].break_time_interval_seconds,
-              break_interval_type: participantData[0].break_interval_type
+              break_interval_type: participantData[0].break_interval_type,
+              show_progress_toggle: participantData[0].show_progress_toggle
             })
             .subscribe((newSession) => {
               console.log('Create Session Data: ', {

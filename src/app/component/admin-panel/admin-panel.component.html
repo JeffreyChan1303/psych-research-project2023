@@ -50,6 +50,21 @@
         </div>
       </div>
     </form>
+    <form [formGroup]="adminForm">
+      <div class="form-group">
+        <label for="session-timeout-seconds">Session Timeout After X Seconds</label>
+        <div class="input-with-button">
+          <input type="number" id="session-timout-seconds" formControlName="sessionTimeoutSeconds" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Show Progress Toggle:</label>
+        <div class="radio-group">
+          <label> <input type="radio" formControlName="showProgressToggle" value="on" /> On </label>
+          <label> <input type="radio" formControlName="showProgressToggle" value="off" /> Off </label>
+        </div>
+      </div>
+    </form>
 
     <div class="admin-buttons-wrapper">
       <button type="button" (click)="fetchParticipantSettings()">Fetch Participant Settings</button>

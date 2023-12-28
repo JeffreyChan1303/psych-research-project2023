@@ -31,6 +31,7 @@ export class PatientRangeComponent implements OnInit {
   isSubmitButtonDisabled = false;
   breakAccepted: boolean = true; // Variable to store the break acceptance status
   breakTiming: any[] = [];
+  timeoutRemaining: number = 300;
   sessionData:
     | {
         participantNumber: string;
@@ -39,6 +40,8 @@ export class PatientRangeComponent implements OnInit {
         breakCountInterval: number;
         breakTimeIntervalSeconds: number;
         breakIntervalType: string;
+        sessionTimeoutSeconds: number;
+        showProgressToggle: boolean;
       }
     | undefined;
   isShowStatistics: boolean = false;
@@ -70,9 +73,12 @@ export class PatientRangeComponent implements OnInit {
       breakDurationSeconds: breakDurationSeconds,
       breakCountInterval: breakCountInterval,
       breakTimeIntervalSeconds: breakTimeIntervalSeconds,
-      breakIntervalType: breakIntervalType
+      breakIntervalType: breakIntervalType,
+      sessionTimeoutSeconds: sessionSettings.sessionTimeoutSeconds,
+      showProgressToggle: sessionSettings.showProgressToggle
     };
 
+    this.isShowStatistics = this.sessionData.showProgressToggle;
     this.timeRemaining = taskDurationSeconds;
 
     this.patientForm = this.fb.group({
@@ -97,6 +103,11 @@ export class PatientRangeComponent implements OnInit {
     // Check if the timer is already running
     if (!this.timerInterval) {
       this.startTimer();
+    }
+
+    // reset the inactivity timeout timer
+    if (this.sessionData) {
+      this.timeoutRemaining = this.sessionData.sessionTimeoutSeconds;
     }
 
     const sessionId = this.sessionService.getSessionId();
@@ -233,6 +244,7 @@ export class PatientRangeComponent implements OnInit {
       } else if (this.timeRemaining > 1) {
         timeSpent++;
         this.timeRemaining--;
+        this.timeoutRemaining--;
         this.isSubmitButtonDisabled = false;
         // check if its a break time
         if (
@@ -240,6 +252,33 @@ export class PatientRangeComponent implements OnInit {
           timeSpent % this.patientForm.value.breakTimeIntervalSeconds === 0
         ) {
           this.showBreakPopup();
+        }
+
+        // kick user out if they are inactive for more than the sessionTimeoutSeconds
+        const sessionId = this.sessionService.getSessionId();
+        const sessionTimeoutSeconds = this.sessionData?.sessionTimeoutSeconds;
+        if (!sessionId || !sessionTimeoutSeconds) {
+          alert('Session data not found!! Unable to check for session timeout!!');
+          return;
+        }
+        if (this.timeoutRemaining === 0) {
+          this.dataService
+            .createSubmission({
+              given_patient_id: 'timeout',
+              entered_patient_id: 'timeout',
+              given_interpretation: Interpretation['within range'],
+              entered_interpretation: Interpretation['within range'],
+              last_interaction: sessionTimeoutSeconds,
+              is_valid: false,
+              session_id: sessionId
+            })
+            .subscribe((newSubmission) => {
+              alert(
+                `Session timed out!! ${this.sessionData?.sessionTimeoutSeconds} seconds have passed without submissions!!`
+              );
+              clearInterval(this.timerInterval);
+              this.router.navigate(['/patient-session']);
+            });
         }
       } else if (this.timeRemaining === 1) {
         timeSpent++;
@@ -298,43 +337,43 @@ export class PatientRangeComponent implements OnInit {
       });
   }
 
-  triggerSettings() {
-    // Implement logic for what to do when the settings trigger button is clicked
-    console.log('Settings Triggered!', this.patientForm);
+  // triggerSettings() {
+  //   // Implement logic for what to do when the settings trigger button is clicked
+  //   console.log('Settings Triggered!', this.patientForm);
 
-    // Check if triggered by task duration
-    if (
-      this.patientForm.get('taskDurationSeconds')?.dirty ||
-      this.patientForm.get('breakDurationSeconds')?.dirty ||
-      this.patientForm.get('breakCountInterval')?.dirty ||
-      this.patientForm.get('breakTimeIntervalSeconds')?.dirty ||
-      this.patientForm.get('breakIntervalType')?.dirty
-    ) {
-      // Reset the timer based on the task duration
-      this.timeRemaining = this.patientForm.value.taskDurationSeconds;
-      clearInterval(this.timerInterval); // Stop the previous timer
-      this.startTimer(); // Start the new timer
+  //   // Check if triggered by task duration
+  //   if (
+  //     this.patientForm.get('taskDurationSeconds')?.dirty ||
+  //     this.patientForm.get('breakDurationSeconds')?.dirty ||
+  //     this.patientForm.get('breakCountInterval')?.dirty ||
+  //     this.patientForm.get('breakTimeIntervalSeconds')?.dirty ||
+  //     this.patientForm.get('breakIntervalType')?.dirty
+  //   ) {
+  //     // Reset the timer based on the task duration
+  //     this.timeRemaining = this.patientForm.value.taskDurationSeconds;
+  //     clearInterval(this.timerInterval); // Stop the previous timer
+  //     this.startTimer(); // Start the new timer
 
-      if (!this.sessionData?.participantNumber) {
-        alert('Session participant number not found!! Unable to update participant settings!!');
-        return;
-      }
-      // update participant settings in the server
-      this.dataService
-        .updateParticipantSettings({
-          participant_number: this.sessionData.participantNumber,
-          task_duration_seconds: this.patientForm.value.taskDurationSeconds,
-          break_duration_seconds: this.patientForm.value.breakDurationSeconds,
-          break_count_interval: this.patientForm.value.breakCountInterval,
-          break_time_interval_seconds: this.patientForm.value.breakTimeIntervalSeconds,
-          break_interval_type: this.patientForm.value.breakIntervalType
-        })
-        .subscribe((updatedParticipant) => {
-          console.log('Update Participant Data: ', updatedParticipant);
-          alert('Participant settings updated successfully!');
-        });
-    }
-  }
+  //     if (!this.sessionData?.participantNumber) {
+  //       alert('Session participant number not found!! Unable to update participant settings!!');
+  //       return;
+  //     }
+  //     // update participant settings in the server
+  //     this.dataService
+  //       .updateParticipantSettings({
+  //         participant_number: this.sessionData.participantNumber,
+  //         task_duration_seconds: this.patientForm.value.taskDurationSeconds,
+  //         break_duration_seconds: this.patientForm.value.breakDurationSeconds,
+  //         break_count_interval: this.patientForm.value.breakCountInterval,
+  //         break_time_interval_seconds: this.patientForm.value.breakTimeIntervalSeconds,
+  //         break_interval_type: this.patientForm.value.breakIntervalType
+  //       })
+  //       .subscribe((updatedParticipant) => {
+  //         console.log('Update Participant Data: ', updatedParticipant);
+  //         alert('Participant settings updated successfully!');
+  //       });
+  //   }
+  // }
 
   downloadRecords() {
     // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
@@ -413,7 +452,7 @@ export class PatientRangeComponent implements OnInit {
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
 
     // Save the Blob as a CSV file
-    saveAs(blob, 'patient_records.csv');
+    saveAs(blob, `patient_${this.sessionService.getParticipantNumber()}_records.csv`);
   }
 
   isTimerBlockClicked() {

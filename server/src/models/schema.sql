@@ -12,6 +12,9 @@ CREATE TABLE Participants (
   break_count_interval INT UNSIGNED NOT NULL DEFAULT 10,
   break_time_interval_seconds INT UNSIGNED NOT NULL DEFAULT 600,
   break_interval_type ENUM('time', 'count') NOT NULL DEFAULT 'count',
+
+  session_timeout_seconds INT UNSIGNED NOT NULL DEFAULT 300,
+  show_progress_toggle BOOLEAN NOT NULL DEFAULT false,
   primary key (id),
   unique key (participant_number)
 );
@@ -28,6 +31,8 @@ CREATE TABLE Sessions (
   break_count_interval INT UNSIGNED NOT NULL,
   break_time_interval_seconds INT UNSIGNED NOT NULL,
   break_interval_type ENUM('time', 'count') NOT NULL,
+
+  show_progress_toggle BOOLEAN NOT NULL DEFAULT false,
   primary key (id),
   foreign key (participant_number) references Participants(participant_number)
 );

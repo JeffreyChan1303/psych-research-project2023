@@ -33,13 +33,15 @@ export const insertParticipant = async (participant_number: string, full_name: s
 //   update participant set task_duration = xxx, break_duration = xxx, break_count_interval = xxx, break_time_interval = xxx where participant_number = participant_number;
 export const updateParticipantSettings = async (params: UpdateParticipantInputModel) => {
   const queryData = await pool.query<ResultSetHeader>(
-    'UPDATE Participants SET task_duration_seconds = ?, break_duration_seconds = ?, break_count_interval = ?, break_time_interval_seconds = ?, break_interval_type = ? WHERE participant_number = ?;',
+    'UPDATE Participants SET task_duration_seconds = ?, break_duration_seconds = ?, break_count_interval = ?, break_time_interval_seconds = ?, break_interval_type = ?, session_timeout_seconds = ?, show_progress_toggle = ? WHERE participant_number = ?;',
     [
       params.task_duration_seconds,
       params.break_duration_seconds,
       params.break_count_interval,
       params.break_time_interval_seconds,
       params.break_interval_type,
+      params.session_timeout_seconds,
+      params.show_progress_toggle,
       params.participant_number
     ]
   );
