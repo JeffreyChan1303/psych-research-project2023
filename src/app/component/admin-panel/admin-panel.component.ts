@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Form, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from 'src/app/service/data.service';
-import * as Papa from 'papaparse';
-import { saveAs } from 'file-saver';
+import { saveBlobAsFile } from 'src/utils/file-saver';
+import { unparseToCsvString } from 'src/utils/csvUtil';
 
 @Component({
   selector: 'app-admin-panel',
@@ -116,13 +116,14 @@ export class AdminPanelComponent implements OnInit {
       });
 
       // Convert CSV data to a string
-      const csvString = Papa.unparse(csvData, { header: false });
+      const csvString = unparseToCsvString(csvData);
 
       // Convert the string to a Blob
       const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
 
       // Save the Blob as a CSV file
-      saveAs(blob, `participant_${participantNumber}_records_from_database.csv`);
+      // saveAs(blob, `participant_${participantNumber}_records_from_database.csv`);
+      saveBlobAsFile(blob, `participant_${participantNumber}_records_from_database.csv`);
     });
   }
   fetchParticipantSettings() {

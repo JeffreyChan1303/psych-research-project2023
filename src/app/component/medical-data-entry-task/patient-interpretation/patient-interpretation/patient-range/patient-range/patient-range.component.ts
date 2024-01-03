@@ -6,8 +6,8 @@ import { SessionService } from 'src/app/service/session.service';
 import { DataService } from 'src/app/service/data.service';
 import { Interpretation } from '../../../../../../../../server/src/types';
 
-import { saveAs } from 'file-saver';
-import * as Papa from 'papaparse';
+import { saveBlobAsFile } from 'src/utils/file-saver';
+import { unparseToCsvString } from 'src/utils/csvUtil';
 
 @Component({
   selector: 'app-patient-range',
@@ -446,13 +446,13 @@ export class PatientRangeComponent implements OnInit {
     });
 
     // Convert CSV data to a string
-    const csvString = Papa.unparse(csvData, { header: false });
+    const csvString = unparseToCsvString(csvData);
 
     // Convert the string to a Blob
     const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8' });
 
     // Save the Blob as a CSV file
-    saveAs(blob, `patient_${this.sessionService.getParticipantNumber()}_records.csv`);
+    saveBlobAsFile(blob, `patient_${this.sessionService.getParticipantNumber()}_records.csv`);
   }
 
   isTimerBlockClicked() {

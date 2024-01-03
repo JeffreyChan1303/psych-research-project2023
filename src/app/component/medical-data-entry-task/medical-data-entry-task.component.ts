@@ -59,13 +59,12 @@ export class MedicalDataEntryTaskComponent implements OnInit {
     const sex = gender.charAt(0).toUpperCase() + gender.slice(1);
 
     // generate patient id
-    // const patientIdString = faker.datatype.alpha({ count: 3 }).toUpperCase();
-    const patientIdString = faker.string.alpha({ length: 3 }).toLowerCase();
+    const patientIdString = faker.string.alpha({ length: 3 }).toUpperCase();
     const patientIdNumber = faker.number.int({ min: 0, max: 999 }).toString().padStart(3, '0');
     const patientId = `${patientIdString}-${patientIdNumber}`;
 
     const hr = faker.number.int({ min: 70, max: 170 });
-    const qtIntervals = faker.number.float({ min: 0.1, max: 0.5, precision: 0.02 });
+    const qtIntervals = faker.number.float({ min: 0.1, max: 0.5, precision: 0.02 }).toPrecision(2);
 
     // male and female ranges
     const femaleRangeMin = faker.number.int({ min: 70, max: 100 });
