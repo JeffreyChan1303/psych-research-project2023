@@ -234,6 +234,7 @@ export class PatientRangeComponent implements OnInit {
   startTimer() {
     // keep track of time Spent for the break interval
     let timeSpent = 0;
+    clearInterval(this.timerInterval); // Clear the previous timer if any
     this.timerInterval = setInterval(() => {
       if (this.breakRemaining > 1) {
         this.breakRemaining--;
@@ -306,8 +307,6 @@ export class PatientRangeComponent implements OnInit {
         isBreakAccepted: true,
         time: new Date()
       });
-      // Continue with the task duration timer
-      // this.startTimer(); // removed because the timer will never stop
     } else {
       this.breakAccepted = false;
       this.breakTiming.push({
@@ -316,6 +315,8 @@ export class PatientRangeComponent implements OnInit {
       });
       console.log('Break declined by user');
     }
+    // Continue with the task duration timer
+    this.startTimer();
 
     // check if session initialization failed!!
     const sessionId = this.sessionService.getSessionId();
@@ -336,44 +337,6 @@ export class PatientRangeComponent implements OnInit {
         });
       });
   }
-
-  // triggerSettings() {
-  //   // Implement logic for what to do when the settings trigger button is clicked
-  //   console.log('Settings Triggered!', this.patientForm);
-
-  //   // Check if triggered by task duration
-  //   if (
-  //     this.patientForm.get('taskDurationSeconds')?.dirty ||
-  //     this.patientForm.get('breakDurationSeconds')?.dirty ||
-  //     this.patientForm.get('breakCountInterval')?.dirty ||
-  //     this.patientForm.get('breakTimeIntervalSeconds')?.dirty ||
-  //     this.patientForm.get('breakIntervalType')?.dirty
-  //   ) {
-  //     // Reset the timer based on the task duration
-  //     this.timeRemaining = this.patientForm.value.taskDurationSeconds;
-  //     clearInterval(this.timerInterval); // Stop the previous timer
-  //     this.startTimer(); // Start the new timer
-
-  //     if (!this.sessionData?.participantNumber) {
-  //       alert('Session participant number not found!! Unable to update participant settings!!');
-  //       return;
-  //     }
-  //     // update participant settings in the server
-  //     this.dataService
-  //       .updateParticipantSettings({
-  //         participant_number: this.sessionData.participantNumber,
-  //         task_duration_seconds: this.patientForm.value.taskDurationSeconds,
-  //         break_duration_seconds: this.patientForm.value.breakDurationSeconds,
-  //         break_count_interval: this.patientForm.value.breakCountInterval,
-  //         break_time_interval_seconds: this.patientForm.value.breakTimeIntervalSeconds,
-  //         break_interval_type: this.patientForm.value.breakIntervalType
-  //       })
-  //       .subscribe((updatedParticipant) => {
-  //         console.log('Update Participant Data: ', updatedParticipant);
-  //         alert('Participant settings updated successfully!');
-  //       });
-  //   }
-  // }
 
   downloadRecords() {
     // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
