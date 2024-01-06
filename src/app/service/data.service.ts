@@ -9,6 +9,7 @@ import {
   SubmissionInputModel,
   UpdateParticipantInputModel
 } from 'server/src/types';
+import { generateRandomPatientData, PatientData } from 'src/utils/patientGenerator';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,10 @@ export class DataService {
 
   getData(jsonPath: string): Observable<any> {
     return this.http.get<any>(jsonPath);
+  }
+  // dummy fetch data like a api call
+  getRandomPatientData(): PatientData[] {
+    return [generateRandomPatientData()];
   }
 
   getParticipantByParticipantNumber(participant_number: string): Observable<[ParticipantViewModel]> {

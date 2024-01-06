@@ -238,6 +238,9 @@ export class PatientRangeComponent implements OnInit {
         }
         this.breakRemaining--;
         this.isSubmitButtonDisabled = false;
+        // reset patient data so they can't be working during the break
+        // this form emits an event to the parent component, which will reset the patient data
+        this.formSubmitted.emit();
       } else if (this.timeRemaining > 1) {
         // regular session timer
         timeSpent++;
