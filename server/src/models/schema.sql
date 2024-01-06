@@ -15,6 +15,7 @@ CREATE TABLE Participants (
 
   session_timeout_seconds INT UNSIGNED NOT NULL DEFAULT 300,
   show_progress_toggle BOOLEAN NOT NULL DEFAULT false,
+  pause_on_break_toggle BOOLEAN NOT NULL DEFAULT true;
   primary key (id),
   unique key (participant_number)
 );
@@ -68,17 +69,6 @@ CREATE TABLE Submissions (
 );
 
 -- INSERT INTO Submissions (session_id, patient_id, interpretation, last_interaction, is_valid) VALUES (1, 'pid-1', 'within range', 6, true), (1, 'pid-2', 'not within range', 22, true), (1, 'pid-3', 'within range', 100, false), (1, 'pid-4', 'within range', 100, true), (1, 'pid-5', 'within range', 100, true), (1, 'pid-5', 'within range', 100, true), (1, 'pid-6', 'not within range', 100, true), (2, 'pid-7', 'within range', 50, false );
-
--- CREATE TABLE Patients (
---   id VARCHAR(255) NOT NULL PRIMARY KEY,
---   full_name VARCHAR(255) NOT NULL,
---   date_of_birth DATE NOT NULL,
---   age TINYINT,
---   sex ENUM('Male', 'Female') NOT NULL,
---   heart_rate SMALLINT UNSIGNED NOT NULL,
---   qt_intervals DECIMAL UNSIGNED NOT NULL,
---   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
--- );
 
 
 -- This is the full query we are trying to create

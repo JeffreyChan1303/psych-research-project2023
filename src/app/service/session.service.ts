@@ -1,5 +1,18 @@
 import { Injectable } from '@angular/core';
-import { SessionInputModel } from 'server/src/types';
+import { BreakIntervalType, SessionInputModel } from 'server/src/types';
+
+export type SessionSettings =
+  | {
+      taskDurationSeconds: number;
+      breakDurationSeconds: number;
+      breakCountInterval: number;
+      breakTimeIntervalSeconds: number;
+      breakIntervalType: BreakIntervalType;
+      sessionTimeoutSeconds: number;
+      showProgressToggle: boolean;
+      pauseOnBreakToggle: boolean;
+    }
+  | undefined;
 
 @Injectable({
   providedIn: 'root'
@@ -7,17 +20,7 @@ import { SessionInputModel } from 'server/src/types';
 export class SessionService {
   protected participantNumber: string | undefined;
   protected sessionId: number | undefined;
-  protected sessionSettings:
-    | {
-        taskDurationSeconds: number;
-        breakDurationSeconds: number;
-        breakCountInterval: number;
-        breakTimeIntervalSeconds: number;
-        breakIntervalType: string;
-        sessionTimeoutSeconds: number;
-        showProgressToggle: boolean;
-      }
-    | undefined;
+  protected sessionSettings: SessionSettings;
 
   constructor() {}
 
@@ -36,18 +39,10 @@ export class SessionService {
     this.sessionId = sessionId;
   }
 
-  getSessionSettings(): any {
+  getSessionSettings(): SessionSettings | undefined {
     return this.sessionSettings;
   }
-  setSessionSettings(sessionSettings: {
-    taskDurationSeconds: number;
-    breakDurationSeconds: number;
-    breakCountInterval: number;
-    breakTimeIntervalSeconds: number;
-    breakIntervalType: string;
-    sessionTimeoutSeconds: number;
-    showProgressToggle: boolean;
-  }): void {
+  setSessionSettings(sessionSettings: SessionSettings): void {
     this.sessionSettings = sessionSettings;
   }
 }

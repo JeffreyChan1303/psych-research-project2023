@@ -4,14 +4,32 @@ export enum BreakIntervalType {
 }
 export interface ParticipantViewModel {
   id: number;
+  created_at: Date;
   participant_number: string;
   full_name: string;
+
   task_duration_seconds: number;
   break_duration_seconds: number;
   break_count_interval: number;
   break_time_interval_seconds: number;
   break_interval_type: BreakIntervalType;
-  created_at: Date;
+
+  session_timeout_seconds: number;
+  show_progress_toggle: boolean;
+  pause_on_break_toggle: boolean;
+}
+export interface UpdateParticipantInputModel {
+  participant_number: string;
+
+  task_duration_seconds: number;
+  break_duration_seconds: number;
+  break_count_interval: number;
+  break_time_interval_seconds: number;
+  break_interval_type: BreakIntervalType;
+
+  session_timeout_seconds: number;
+  show_progress_toggle: boolean;
+  pause_on_break_toggle: boolean;
 }
 
 export interface SessionViewModel {
@@ -44,17 +62,6 @@ export interface SessionInputModel {
   break_count_interval: number;
   break_time_interval_seconds: number;
   break_interval_type: BreakIntervalType;
-  show_progress_toggle: boolean;
-}
-
-export interface UpdateParticipantInputModel {
-  participant_number: string;
-  task_duration_seconds: number;
-  break_duration_seconds: number;
-  break_count_interval: number;
-  break_time_interval_seconds: number;
-  break_interval_type: BreakIntervalType;
-  session_timeout_seconds: number;
   show_progress_toggle: boolean;
 }
 

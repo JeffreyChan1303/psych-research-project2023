@@ -24,7 +24,7 @@ export class DataService {
     return this.http.get<any>(jsonPath);
   }
 
-  getParticipantByParticipantNumber(participant_number: string): Observable<any> {
+  getParticipantByParticipantNumber(participant_number: string): Observable<[ParticipantViewModel]> {
     return this.http.get<any>(`${this.apiUrl}/participantByParticipantNumber/${participant_number}`);
   }
 

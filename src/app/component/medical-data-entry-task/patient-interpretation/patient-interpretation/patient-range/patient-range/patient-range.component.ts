@@ -2,9 +2,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SessionService } from 'src/app/service/session.service';
+import { SessionService, SessionSettings } from 'src/app/service/session.service';
 import { DataService } from 'src/app/service/data.service';
-import { Interpretation } from '../../../../../../../../server/src/types';
+import { BreakIntervalType, Interpretation } from '../../../../../../../../server/src/types';
 
 import { saveBlobAsFile } from 'src/utils/file-saver';
 import { unparseToCsvString } from 'src/utils/csvUtil';
@@ -32,18 +32,7 @@ export class PatientRangeComponent implements OnInit {
   breakAccepted: boolean = true; // Variable to store the break acceptance status
   breakTiming: any[] = [];
   timeoutRemaining: number = 300;
-  sessionData:
-    | {
-        participantNumber: string;
-        taskDurationSeconds: number;
-        breakDurationSeconds: number;
-        breakCountInterval: number;
-        breakTimeIntervalSeconds: number;
-        breakIntervalType: string;
-        sessionTimeoutSeconds: number;
-        showProgressToggle: boolean;
-      }
-    | undefined;
+  sessionSettings: SessionSettings;
   isShowStatistics: boolean = false;
 
   constructor(
@@ -56,39 +45,30 @@ export class PatientRangeComponent implements OnInit {
   ngOnInit() {
     // get data from session
     const participantNumber = this.sessionService.getParticipantNumber();
-    const sessionSettings = this.sessionService.getSessionSettings();
-    if (!sessionSettings || !participantNumber) {
+    this.sessionSettings = this.sessionService.getSessionSettings();
+
+    if (!participantNumber) {
+      alert('patient-range-init: Session Patient Number not found!!');
+      this.router.navigate(['/patient-session']);
+      return;
+    }
+
+    if (!this.sessionSettings) {
       alert('patient-range-init: Session settings not found!! Unable to start timer!!');
       this.router.navigate(['/patient-session']);
       return;
     }
-    const taskDurationSeconds = sessionSettings.taskDurationSeconds;
-    const breakDurationSeconds = sessionSettings.breakDurationSeconds;
-    const breakCountInterval = sessionSettings.breakCountInterval;
-    const breakTimeIntervalSeconds = sessionSettings.breakTimeIntervalSeconds;
-    const breakIntervalType = sessionSettings.breakIntervalType;
-    this.sessionData = {
-      participantNumber: participantNumber,
-      taskDurationSeconds: taskDurationSeconds,
-      breakDurationSeconds: breakDurationSeconds,
-      breakCountInterval: breakCountInterval,
-      breakTimeIntervalSeconds: breakTimeIntervalSeconds,
-      breakIntervalType: breakIntervalType,
-      sessionTimeoutSeconds: sessionSettings.sessionTimeoutSeconds,
-      showProgressToggle: sessionSettings.showProgressToggle
-    };
-
-    this.isShowStatistics = this.sessionData.showProgressToggle;
-    this.timeRemaining = taskDurationSeconds;
+    this.isShowStatistics = this.sessionSettings.showProgressToggle;
+    this.timeRemaining = this.sessionSettings.taskDurationSeconds;
 
     this.patientForm = this.fb.group({
       patientId: ['', Validators.required],
       interpretation: [, Validators.required],
-      taskDurationSeconds: [taskDurationSeconds, Validators.required], // Default task duration in seconds
-      breakDurationSeconds: [breakDurationSeconds, Validators.required], // Default break duration in seconds
-      breakTimeIntervalSeconds: [breakTimeIntervalSeconds, Validators.required], // Default break time interval in seconds
-      breakCountInterval: [breakCountInterval, Validators.required],
-      breakIntervalType: [breakIntervalType, Validators.required]
+      taskDurationSeconds: [this.sessionSettings.taskDurationSeconds, Validators.required], // Default task duration in seconds
+      breakDurationSeconds: [this.sessionSettings.breakDurationSeconds, Validators.required], // Default break duration in seconds
+      breakTimeIntervalSeconds: [this.sessionSettings.breakTimeIntervalSeconds, Validators.required], // Default break time interval in seconds
+      breakCountInterval: [this.sessionSettings.breakCountInterval, Validators.required],
+      breakIntervalType: [this.sessionSettings.breakIntervalType, Validators.required]
     });
   }
 
@@ -106,8 +86,8 @@ export class PatientRangeComponent implements OnInit {
     }
 
     // reset the inactivity timeout timer
-    if (this.sessionData) {
-      this.timeoutRemaining = this.sessionData.sessionTimeoutSeconds;
+    if (this.sessionSettings) {
+      this.timeoutRemaining = this.sessionSettings.sessionTimeoutSeconds;
     }
 
     const sessionId = this.sessionService.getSessionId();
@@ -236,13 +216,30 @@ export class PatientRangeComponent implements OnInit {
     let timeSpent = 0;
     clearInterval(this.timerInterval); // Clear the previous timer if any
     this.timerInterval = setInterval(() => {
-      if (this.breakRemaining > 1) {
+      if (this.timeRemaining === 1) {
+        // session if finished
+        timeSpent++;
+        this.timeRemaining--;
+        this.isSubmitButtonDisabled = true;
+        alert('You have completed this session. Please download your records and send to your researcher.');
+        clearInterval(this.timerInterval);
+      } else if (this.breakRemaining > 1) {
+        // on break
         this.breakRemaining--;
+        // if the pause on break toggle is off, then the timer should run during the break
+        if (this.sessionSettings && !this.sessionSettings.pauseOnBreakToggle) {
+          this.timeRemaining--;
+        }
         this.isSubmitButtonDisabled = true;
       } else if (this.breakRemaining === 1) {
+        // break is finished
+        if (this.sessionSettings && !this.sessionSettings.pauseOnBreakToggle) {
+          this.timeRemaining--;
+        }
         this.breakRemaining--;
         this.isSubmitButtonDisabled = false;
       } else if (this.timeRemaining > 1) {
+        // regular session timer
         timeSpent++;
         this.timeRemaining--;
         this.timeoutRemaining--;
@@ -257,7 +254,7 @@ export class PatientRangeComponent implements OnInit {
 
         // kick user out if they are inactive for more than the sessionTimeoutSeconds
         const sessionId = this.sessionService.getSessionId();
-        const sessionTimeoutSeconds = this.sessionData?.sessionTimeoutSeconds;
+        const sessionTimeoutSeconds = this.sessionSettings?.sessionTimeoutSeconds;
         if (!sessionId || !sessionTimeoutSeconds) {
           alert('Session data not found!! Unable to check for session timeout!!');
           return;
@@ -275,18 +272,12 @@ export class PatientRangeComponent implements OnInit {
             })
             .subscribe((newSubmission) => {
               alert(
-                `Session timed out!! ${this.sessionData?.sessionTimeoutSeconds} seconds have passed without submissions!!`
+                `Session timed out!! ${this.sessionSettings?.sessionTimeoutSeconds} seconds have passed without submissions!!`
               );
               clearInterval(this.timerInterval);
               this.router.navigate(['/patient-session']);
             });
         }
-      } else if (this.timeRemaining === 1) {
-        timeSpent++;
-        this.timeRemaining--;
-        this.isSubmitButtonDisabled = true;
-        alert('You have completed this session. Please download your records and send to your researcher.');
-        clearInterval(this.timerInterval);
       }
     }, 1000);
   }
@@ -359,6 +350,7 @@ export class PatientRangeComponent implements OnInit {
     csvData.push(['Total Record', this.totalRecord]);
     csvData.push(['Correct Record', this.correctRecord]);
     csvData.push(['Time Remaining', this.timeRemaining]);
+    csvData.push(['Session Length', `${this.sessionSettings?.taskDurationSeconds} seconds`]);
     csvData.push(['', '']); // Empty row for separation
 
     // Add current patient details if available

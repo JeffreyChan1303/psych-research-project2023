@@ -53,7 +53,8 @@ export class PatientSessionComponent implements OnInit {
             breakDurationSeconds: participantData[0].break_duration_seconds,
             breakIntervalType: participantData[0].break_interval_type,
             sessionTimeoutSeconds: participantData[0].session_timeout_seconds,
-            showProgressToggle: participantData[0].show_progress_toggle
+            showProgressToggle: participantData[0].show_progress_toggle,
+            pauseOnBreakToggle: participantData[0].pause_on_break_toggle
           });
 
           // create a new session

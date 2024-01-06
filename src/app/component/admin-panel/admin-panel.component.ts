@@ -38,7 +38,8 @@ export class AdminPanelComponent implements OnInit {
       breakIntervalType: ['', Validators.required],
       participantNumber: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
       sessionTimeoutSeconds: ['', Validators.required],
-      showProgressToggle: ['', Validators.required]
+      showProgressToggle: ['', Validators.required],
+      pauseOnBreakToggle: ['', Validators.required]
     });
 
     // this will disable the update button when participant number changes
@@ -147,7 +148,8 @@ export class AdminPanelComponent implements OnInit {
             breakTimeIntervalSeconds: participant[0].break_time_interval_seconds,
             breakIntervalType: participant[0].break_interval_type,
             sessionTimeoutSeconds: participant[0].session_timeout_seconds,
-            showProgressToggle: participant[0].show_progress_toggle ? 'on' : 'off'
+            showProgressToggle: participant[0].show_progress_toggle ? 'on' : 'off',
+            pauseOnBreakToggle: participant[0].pause_on_break_toggle ? 'on' : 'off'
           });
           // update if the participant is valid to allow the admin to update the participant's settings!!
           this.isParticipantValid = true;
@@ -170,7 +172,8 @@ export class AdminPanelComponent implements OnInit {
       this.adminForm.get('breakTimeIntervalSeconds')?.dirty ||
       this.adminForm.get('breakIntervalType')?.dirty ||
       this.adminForm.get('sessionTimeoutSeconds')?.dirty ||
-      this.adminForm.get('showProgressToggle')?.dirty
+      this.adminForm.get('showProgressToggle')?.dirty ||
+      this.adminForm.get('pauseOnBreakToggle')?.dirty
     ) {
       // check the api error code to see if the participant number entered is valid or not
 
@@ -184,7 +187,8 @@ export class AdminPanelComponent implements OnInit {
           break_time_interval_seconds: this.adminForm.value.breakTimeIntervalSeconds,
           break_interval_type: this.adminForm.value.breakIntervalType,
           session_timeout_seconds: this.adminForm.value.sessionTimeoutSeconds,
-          show_progress_toggle: this.adminForm.value.showProgressToggle === 'on' ? true : false
+          show_progress_toggle: this.adminForm.value.showProgressToggle === 'on' ? true : false,
+          pause_on_break_toggle: this.adminForm.value.pauseOnBreakToggle === 'on' ? true : false
         })
         .subscribe((updatedParticipant) => {
           console.log('Update Participant Data: ', updatedParticipant);
