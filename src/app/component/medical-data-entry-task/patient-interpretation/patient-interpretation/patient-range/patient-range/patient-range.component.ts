@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { SessionService, SessionSettings } from 'src/app/service/session.service';
 import { DataService } from 'src/app/service/data.service';
 import { BreakIntervalType, Interpretation } from '../../../../../../../../server/src/types';
+import { MatDialog } from '@angular/material/dialog';
+import { PopUpComponent } from 'src/app/pop-up/pop-up.component';
 
 import { saveBlobAsFile } from 'src/utils/file-saver';
 import { unparseToCsvString } from 'src/utils/csvUtil';
@@ -39,7 +41,8 @@ export class PatientRangeComponent implements OnInit {
     private fb: FormBuilder,
     private sessionService: SessionService,
     private dataService: DataService,
-    private router: Router
+    private router: Router,
+    private dialogRef: MatDialog
   ) {}
 
   ngOnInit() {
@@ -222,7 +225,21 @@ export class PatientRangeComponent implements OnInit {
         timeSpent++;
         this.timeRemaining--;
         this.isSubmitButtonDisabled = true;
-        alert('You have completed this session. Please download your records and send to your researcher.');
+        this.dialogRef.open(PopUpComponent, {
+          disableClose: true,
+          data: {
+            textContent: 'You have completed this session. Please download your records and send to your researcher.',
+            confirmText: 'Download Records',
+            cancelText: 'Close',
+            confirmFunction: () => {
+              this.downloadRecords();
+              this.dialogRef.closeAll();
+            },
+            cancelFunction: () => {
+              this.dialogRef.closeAll();
+            }
+          }
+        });
         clearInterval(this.timerInterval);
       } else if (this.breakRemaining > 1) {
         // on break
@@ -239,7 +256,11 @@ export class PatientRangeComponent implements OnInit {
         }
         this.breakRemaining--;
         this.isSubmitButtonDisabled = false;
-        // reset patient data so they can't be working during the break
+        // reset patient data and form data so they can't be working during the break
+        this.patientForm.patchValue({
+          patientId: '',
+          interpretation: ''
+        });
         // this form emits an event to the parent component, which will reset the patient data
         this.formSubmitted.emit();
       } else if (this.timeRemaining > 1) {
@@ -290,54 +311,79 @@ export class PatientRangeComponent implements OnInit {
     this.isShowStatistics = !this.isShowStatistics;
   }
 
-  showBreakPopup() {
-    // Display the popup
-    const userAcceptsBreak = confirm('Take a break?');
-    // add the break dataService create call in this if block so create a break time in the database
-    if (userAcceptsBreak) {
-      // Set the breakRemaining to the break duration
-      this.breakRemaining = this.patientForm.value.breakDurationSeconds;
-      this.isSubmitButtonDisabled = true;
-      this.breakTiming.push({
-        isBreakAccepted: true,
-        time: new Date()
-      });
-    } else {
-      this.breakAccepted = false;
-      this.breakTiming.push({
-        isBreakAccepted: false,
-        time: new Date()
-      });
-      console.log('Break declined by user');
-    }
-    // Continue with the task duration timer
-    this.startTimer();
+  stopTimer() {
+    clearInterval(this.timerInterval);
+  }
 
-    // check if session initialization failed!!
-    const sessionId = this.sessionService.getSessionId();
-    if (!sessionId) {
-      alert('Session ID not found!! Unable to create break!!');
-      return;
-    }
-    // send the break to the server (dataService)
-    this.dataService
-      .createBreak({
-        session_id: sessionId,
-        has_accepted: userAcceptsBreak
-      })
-      .subscribe((newBreak) => {
-        console.log('Create Break Data: ', {
-          ...newBreak[0],
-          created_at: new Date(newBreak[0].created_at)
+  async showBreakPopup() {
+    // uses the Popup component to show the break popup
+    let userAcceptsBreak: boolean = false;
+    this.dialogRef.open(PopUpComponent, {
+      disableClose: true,
+      data: {
+        textContent: 'Want to take a break?',
+        confirmText: 'Yes',
+        cancelText: 'No',
+        confirmFunction: () => {
+          this.stopTimer();
+          userAcceptsBreak = true;
+          this.breakRemaining = this.patientForm.value.breakDurationSeconds;
+          this.isSubmitButtonDisabled = true;
+          this.breakTiming.push({
+            isBreakAccepted: true,
+            time: new Date()
+          });
+          this.dialogRef.closeAll();
+        },
+        cancelFunction: () => {
+          userAcceptsBreak = false;
+          this.breakTiming.push({
+            isBreakAccepted: false,
+            time: new Date()
+          });
+          this.dialogRef.closeAll();
+        }
+      }
+    });
+
+    this.dialogRef.afterAllClosed.subscribe(() => {
+      this.startTimer();
+
+      // check if session initialization failed!!
+      const sessionId = this.sessionService.getSessionId();
+      if (!sessionId) {
+        alert('Session ID not found!! Unable to create break!!');
+        return;
+      }
+      // send the break to the server (dataService)
+      this.dataService
+        .createBreak({
+          session_id: sessionId,
+          has_accepted: userAcceptsBreak
+        })
+        .subscribe((newBreak) => {
+          console.log('Create Break Data: ', {
+            ...newBreak[0],
+            created_at: new Date(newBreak[0].created_at)
+          });
         });
-      });
+    });
   }
 
   downloadRecords() {
     // here, this should be covered under the Admin panel button, and should use the getSubmissions and getBreaks, and should parse these into the csv!!
-    console.log(this.timeRemaining, 'time Remaining');
     if (this.timeRemaining > 0) {
-      alert('You can download the records after the session ends');
+      this.dialogRef.open(PopUpComponent, {
+        data: {
+          textContent: 'You can download the records after the session ends',
+          confirmText: 'OK',
+          confirmFunction: () => {
+            this.dialogRef.closeAll();
+          },
+          cancelText: '',
+          cancelFunction: () => {}
+        }
+      });
       return;
     }
 
@@ -378,24 +424,24 @@ export class PatientRangeComponent implements OnInit {
     // Add patient records
     csvData.push(['Patient Records']);
     csvData.push([
+      'Timestamp',
       'Given Patient ID',
       'Entered Patient Id',
       'Is Patient Id Valid',
       'Given Interpretation',
       'Entered Interpretation',
       'Is Interpretation Valid',
-      'Timestamp',
       'Last Interaction'
     ]);
     this.allRecords.forEach((record) => {
       csvData.push([
+        record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }),
         record.currentPatientDetails.patientId,
         record.enteredPatientId,
         record.isPatientIdValid,
         record.givenInterpretation,
         record.enteredInterpretation,
         record.isInterpretationValid,
-        record.timestamp.toLocaleString('en-US', { timeZone: 'America/New_York' }),
         record.lastInteraction
       ]);
     });
@@ -414,25 +460,5 @@ export class PatientRangeComponent implements OnInit {
 
     // Save the Blob as a CSV file
     saveBlobAsFile(blob, `patient_${this.sessionService.getParticipantNumber()}_records.csv`);
-  }
-
-  isTimerBlockClicked() {
-    if (this.isShowTimer === false && this.isPasswordCorrect()) {
-      this.isShowTimer = !this.isShowTimer;
-    } else if (this.isShowTimer === true) {
-      this.isShowTimer = !this.isShowTimer;
-    }
-  }
-
-  isPasswordCorrect() {
-    const enteredPassword = prompt('Enter the password');
-
-    if (enteredPassword === this.password) {
-      alert('Password is correct!');
-      return true;
-    } else {
-      alert('Incorrect password. Try again.');
-      return false;
-    }
   }
 }

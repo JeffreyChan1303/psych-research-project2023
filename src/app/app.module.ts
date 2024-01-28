@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,6 +16,7 @@ import { PatientRangeComponent } from './component/medical-data-entry-task/patie
 import { HttpClientModule } from '@angular/common/http';
 import { FormatTimePipe } from './service/formate-time.pipe';
 import { AdminPanelComponent } from './component/admin-panel/admin-panel.component';
+import { PopUpComponent } from './pop-up/pop-up.component';
 
 @NgModule({
   declarations: [
@@ -26,9 +28,10 @@ import { AdminPanelComponent } from './component/admin-panel/admin-panel.compone
     PatientMaleFemaleComponent,
     PatientRangeComponent,
     AdminPanelComponent,
-    FormatTimePipe
+    FormatTimePipe,
+    PopUpComponent
   ],
-  imports: [InputNumberModule, BrowserModule, AppRoutingModule, ReactiveFormsModule, HttpClientModule],
+  imports: [InputNumberModule, BrowserModule, AppRoutingModule, ReactiveFormsModule, HttpClientModule, MatDialogModule],
   providers: [],
   bootstrap: [AppComponent]
   // schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA]
