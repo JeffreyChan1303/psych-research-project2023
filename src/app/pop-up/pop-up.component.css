@@ -1,0 +1,45 @@
+.popup-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  gap: 1.5rem;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.popup-text-content {
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+button {
+  padding: 6px 12px;
+  border-radius: 15px;
+  min-width: 80px;
+  cursor: pointer;
+}
+
+.confirm-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+.cancel-button {
+  background-color: snow;
+  color: black;
+  border: 1px solid #4caf50;
+}
+
+.confirm-button:hover {
+  background-color: #45a049;
+}
+.cancel-button:hover {
+  background-color: #e7e7e7;
+}

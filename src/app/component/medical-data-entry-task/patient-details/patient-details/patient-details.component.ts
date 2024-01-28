@@ -1,6 +1,8 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DataService } from 'src/app/service/data.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PopUpComponent } from 'src/app/pop-up/pop-up.component';
 
 @Component({
   selector: 'app-patient-details',
@@ -12,13 +14,23 @@ export class PatientDetailsComponent implements OnChanges {
   @Input() randomNumber!: number;
   patientForm!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private dataService: DataService) {}
+  constructor(private formBuilder: FormBuilder, private dataService: DataService, private dialogRef: MatDialog) {}
 
   // quick fix for copy/paste requirement
   @HostListener('copy', ['$event'])
   onCopy(event: ClipboardEvent) {
     event.preventDefault();
-    alert('Copying from patient data not allowed!!!');
+    this.dialogRef.open(PopUpComponent, {
+      data: {
+        textContent: 'Copying from patient data not allowed!!!',
+        confirmText: 'OK',
+        confirmFunction: () => {
+          this.dialogRef.closeAll();
+        },
+        cancelText: '',
+        cancelFunction: () => {}
+      }
+    });
   }
 
   ngOnInit() {

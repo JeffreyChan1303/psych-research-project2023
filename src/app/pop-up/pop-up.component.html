@@ -1,0 +1,8 @@
+<div class="popup-wrapper">
+  <h4 class="popup-text-content">{{ textContent }}</h4>
+
+  <div class="button-wrapper">
+    <button class="cancel-button" *ngIf="cancelText" (click)="cancelFunction()">{{ cancelText }}</button>
+    <button class="confirm-button" *ngIf="confirmText" (click)="confirmFunction()">{{ confirmText }}</button>
+  </div>
+</div>
