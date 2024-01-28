@@ -75,14 +75,15 @@ export class AdminPanelComponent implements OnInit {
       csvData.push([
         'id',
         'session_id',
-        'created_at',
-        'given_interpretation',
-        'entered_interpretation',
-        'given_patient_id',
-        'entered_patient_id',
-        'is_valid',
-        'last_interaction (seconds)'
-      ]); // Header
+        'Timestamp',
+        'Given Patient ID',
+        'Entered Patient Id',
+        'Is Patient Id Valid',
+        'Given Interpretation',
+        'Entered Interpretation',
+        'Is Interpretation Valid',
+        'Last Interaction'
+      ]);
 
       // add submission data
 
@@ -93,11 +94,12 @@ export class AdminPanelComponent implements OnInit {
           submission.id,
           submission.session_id,
           formattedCreatedAt,
-          submission.given_interpretation,
-          submission.entered_interpretation,
           submission.given_patient_id,
           submission.entered_patient_id,
-          submission.is_valid ? 'true' : 'false',
+          submission.given_patient_id.toLowerCase() === submission.entered_patient_id.toLowerCase(),
+          submission.given_interpretation,
+          submission.entered_interpretation,
+          submission.given_interpretation === submission.entered_interpretation,
           `${submission.last_interaction}`
         ]);
       });
@@ -111,7 +113,7 @@ export class AdminPanelComponent implements OnInit {
           breakEntry.id,
           breakEntry.session_id,
           formattedCreatedAt,
-          breakEntry.has_accepted,
+          breakEntry.has_accepted ? 'true' : 'false',
           breakEntry.break_duration_seconds
         ]);
       });

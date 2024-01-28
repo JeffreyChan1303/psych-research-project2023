@@ -1,27 +1,25 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DataService } from 'src/app/service/data.service';
 
 @Component({
   selector: 'app-patient-details',
   templateUrl: './patient-details.component.html',
-  styleUrls: ['./patient-details.component.css'],
+  styleUrls: ['./patient-details.component.css']
 })
 export class PatientDetailsComponent implements OnChanges {
   @Input() data: any;
   @Input() randomNumber!: number;
   patientForm!: FormGroup;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private dataService: DataService
-  ) {}
+  constructor(private formBuilder: FormBuilder, private dataService: DataService) {}
+
+  // quick fix for copy/paste requirement
+  @HostListener('copy', ['$event'])
+  onCopy(event: ClipboardEvent) {
+    event.preventDefault();
+    alert('Copying from patient data not allowed!!!');
+  }
 
   ngOnInit() {
     this.initForm();
@@ -45,7 +43,7 @@ export class PatientDetailsComponent implements OnChanges {
       sex: ['', Validators.required],
       patientId: ['', Validators.required],
       hr: ['', Validators.required],
-      qtIntervals: ['', Validators.required],
+      qtIntervals: ['', Validators.required]
     });
 
     // After initializing the form, you can call assignFormValue if needed
@@ -64,7 +62,7 @@ export class PatientDetailsComponent implements OnChanges {
         sex: firstPatient.sex,
         patientId: firstPatient.patientId,
         hr: firstPatient.hr,
-        qtIntervals: firstPatient.qtIntervals,
+        qtIntervals: firstPatient.qtIntervals
       });
 
       // Log the data after it's patched into the form
